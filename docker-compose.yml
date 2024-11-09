@@ -1,0 +1,12 @@
+services:
+  database:
+    container_name: nest_stripe_pg
+    image: postgres:alpine
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+    environment:
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+      - POSTGRES_DB=${PG_DATABASE}
+    volumes:
+      - ./db:/var/lib/postgresql/database
