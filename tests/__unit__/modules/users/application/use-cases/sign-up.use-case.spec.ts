@@ -63,4 +63,31 @@ describe(SignUpUseCase.name, () => {
 		expect(hashingService.hash).not.toHaveBeenCalled();
 		expect(usersRepository.insert).not.toHaveBeenCalled();
 	});
+
+	it('should sign up a user', async () => {
+		const user = new UserEntityBuilder().build();
+		const hashedPassword = 'supersecrethashedpassword';
+
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
+		jest.spyOn(hashingService, 'hash').mockResolvedValueOnce(hashedPassword);
+		jest.spyOn(usersRepository, 'insert');
+
+		const userProps = user.getProps();
+
+		const input = new SignUpUseCaseBuilder()
+			.setName(userProps.name)
+			.setEmail(userProps.email)
+			.getInput();
+
+		const { user: newUser } = await sut.exec(input);
+		const newUserProps = newUser.getProps();
+
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.email);
+		expect(hashingService.hash).toHaveBeenCalledWith(input.password);
+		expect(usersRepository.insert).toHaveBeenCalled();
+		expect(newUser).toBeDefined();
+		expect(newUserProps.name).toEqual(userProps.name);
+		expect(newUserProps.email).toEqual(userProps.email);
+		expect(newUserProps.password).toBe(hashedPassword);
+	});
 });
