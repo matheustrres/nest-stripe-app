@@ -5,13 +5,13 @@ import {
 	UserEntityProps,
 } from '@/modules/users/domain/user.entity';
 
-import { faker } from '#/__unit__/!libs/faker';
+import { FakerLib } from '#/__unit__/!libs/faker';
 
 export class UserEntityBuilder {
 	#props: UserEntityProps = {
-		name: faker.person.fullName(),
-		email: faker.internet.email(),
-		password: faker.internet.password(),
+		name: FakerLib.person.fullName(),
+		email: FakerLib.internet.email(),
+		password: FakerLib.internet.password(),
 		role: Role.User,
 	};
 

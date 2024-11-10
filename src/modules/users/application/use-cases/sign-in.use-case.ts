@@ -34,7 +34,7 @@ export class SignInUseCase
 	}: SignInUseCaseInput): Promise<SignInUseCaseOutput> {
 		const user = await this.usersRepository.findByEmail(email);
 		if (!user) throw new UserInvalidCredentialsError();
-    
+
 		const { password: userPassword, role } = user.getProps();
 
 		const passwordMatches = await this.hashingService.compare({
