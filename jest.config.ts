@@ -16,7 +16,7 @@ export default {
 	detectOpenHandles: true,
 	testEnvironment: 'node',
 	moduleNameMapper: {
-		'#/(.+)': '<rootDir>/test/$1',
+		'#/(.+)': '<rootDir>/tests/$1',
 		'@/app': '<rootDir>/src/app',
 		'@/core/(.+)': '<rootDir>/src/core/$1',
 		'@/modules/(.+)': '<rootDir>/src/modules/$1',
