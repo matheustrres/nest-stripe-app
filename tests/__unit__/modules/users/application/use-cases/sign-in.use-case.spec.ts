@@ -90,4 +90,38 @@ describe(SignInUseCase.name, () => {
 		});
 		expect(tokenizationService.sign).not.toHaveBeenCalled();
 	});
+
+	it('should sign in a user', async () => {
+		const user = new UserEntityBuilder().build();
+
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(user);
+		jest.spyOn(hashingService, 'compare').mockResolvedValueOnce(true);
+		jest
+			.spyOn(tokenizationService, 'sign')
+			.mockResolvedValueOnce('access_token');
+
+		const { email, password, role } = user.getProps();
+
+		const input = new SignInUseCaseBuilder()
+			.setEmail(email)
+			.setPassword(password)
+			.getInput();
+
+		const { accessToken, user: signedUser } = await sut.exec(input);
+
+		expect(accessToken).toEqual('access_token');
+		expect(signedUser).toStrictEqual(user);
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.email);
+		expect(hashingService.compare).toHaveBeenCalledWith({
+			hashedStr: password,
+			plainStr: input.password,
+		});
+		expect(tokenizationService.sign).toHaveBeenCalledWith(
+			{
+				sub: user.id.value,
+				role,
+			},
+			'2d',
+		);
+	});
 });
