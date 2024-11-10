@@ -8,6 +8,7 @@ import { UsersRepository } from '@/modules/users/application/repositories/users.
 import { SignInUseCase } from '@/modules/users/application/use-cases/sign-in.use-case';
 
 import { SignInUseCaseBuilder } from '#/__unit__/builders/users/use-cases/sign-in.use-case.builder';
+import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(SignInUseCase.name, () => {
 	let usersRepository: UsersRepository;
@@ -65,6 +66,28 @@ describe(SignInUseCase.name, () => {
 		);
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.email);
 		expect(hashingService.compare).not.toHaveBeenCalled();
+		expect(tokenizationService.sign).not.toHaveBeenCalled();
+	});
+
+	it('should throw a UserInvalidCredentialsError if incoming password does not match user hashed password', async () => {
+		const user = new UserEntityBuilder().build();
+
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(user);
+		jest.spyOn(hashingService, 'compare').mockResolvedValueOnce(false);
+		jest.spyOn(tokenizationService, 'sign');
+
+		const { email, password } = user.getProps();
+
+		const input = new SignInUseCaseBuilder().setEmail(email).getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			new UserInvalidCredentialsError(),
+		);
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.email);
+		expect(hashingService.compare).toHaveBeenCalledWith({
+			hashedStr: password,
+			plainStr: input.password,
+		});
 		expect(tokenizationService.sign).not.toHaveBeenCalled();
 	});
 });
