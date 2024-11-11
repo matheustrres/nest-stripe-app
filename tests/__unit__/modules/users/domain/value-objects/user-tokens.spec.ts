@@ -36,4 +36,13 @@ describe(UserTokensValueObject.name, () => {
 			expect(tokens.amount).toEqual(4_000);
 		});
 	});
+
+	describe('when subtracting tokens', () => {
+		it('should throw if an invalid amount is provided', () => {
+			const tokens = new UserTokensValueObjectBuilder().build();
+			expect(() => tokens.subtract('3_000' as unknown as number)).toThrow(
+				'Argument {amount} is required and must be a positive number.',
+			);
+		});
+	});
 });
