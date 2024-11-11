@@ -1,3 +1,5 @@
+import { UserTokensValueObject } from './value-objects/tokens';
+
 import { CreateEntityProps, Entity } from '@/@core/domain/entity';
 import { EntityCuid } from '@/@core/domain/entity-cuid';
 import { Role } from '@/@core/enums/user-role';
@@ -8,6 +10,7 @@ export type UserEntityProps = {
 	email: string;
 	password: string;
 	role: Role;
+	tokens: UserTokensValueObject;
 };
 
 type OptionaUserEntityConstructorProps = Optional<UserEntityProps, 'role'>;
