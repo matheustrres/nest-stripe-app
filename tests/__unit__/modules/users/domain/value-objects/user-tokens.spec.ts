@@ -64,11 +64,22 @@ describe(UserTokensValueObject.name, () => {
 		});
 	});
 
-	it('should compare if tokens balance is sufficient', () => {
-		const tokens = new UserTokensValueObjectBuilder().setAmount(10_000).build();
-		expect(tokens.hasSufficientBalance(8_340)).toBe(true);
-		expect(tokens.hasSufficientBalance(13_000)).toBe(false);
-		expect(tokens.hasSufficientBalance(34_490)).toBe(false);
-		expect(tokens.hasSufficientBalance(2_920)).toBe(true);
+	describe('when comparing tokens balance', () => {
+		it('should throw if an invalid amount is provided', () => {
+			const tokens = new UserTokensValueObjectBuilder().build();
+			expect(() =>
+				tokens.hasSufficientBalance('12_000' as unknown as number),
+			).toThrow('Argument {amount} is required and must be a positive number.');
+		});
+
+		it('should compare if tokens balance is sufficient', () => {
+			const tokens = new UserTokensValueObjectBuilder()
+				.setAmount(10_000)
+				.build();
+			expect(tokens.hasSufficientBalance(8_340)).toBe(true);
+			expect(tokens.hasSufficientBalance(13_000)).toBe(false);
+			expect(tokens.hasSufficientBalance(34_490)).toBe(false);
+			expect(tokens.hasSufficientBalance(2_920)).toBe(true);
+		});
 	});
 });
