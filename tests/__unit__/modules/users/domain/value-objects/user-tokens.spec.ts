@@ -1,5 +1,6 @@
 import { userDefaultTokensAmount } from '@/@core/domain/constants/user-tokens';
 
+import { UserTokensError } from '@/modules/users/domain/errors/user-tokens.error';
 import { UserTokensValueObject } from '@/modules/users/domain/value-objects/tokens';
 
 import { UserTokensValueObjectBuilder } from '#/__unit__/builders/users/value-objects/user-tokens.builder';
@@ -42,6 +43,15 @@ describe(UserTokensValueObject.name, () => {
 			const tokens = new UserTokensValueObjectBuilder().build();
 			expect(() => tokens.subtract('3_000' as unknown as number)).toThrow(
 				'Argument {amount} is required and must be a positive number.',
+			);
+		});
+
+		it('should throw if current amount is less than the provided amount', () => {
+			const tokens = new UserTokensValueObjectBuilder()
+				.setAmount(10_000)
+				.build();
+			expect(() => tokens.subtract(13_400)).toThrow(
+				UserTokensError.byInsufficientBalance(),
 			);
 		});
 	});
