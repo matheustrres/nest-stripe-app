@@ -54,5 +54,13 @@ describe(UserTokensValueObject.name, () => {
 				UserTokensError.byInsufficientBalance(),
 			);
 		});
+
+		it('should subtract tokens', () => {
+			const tokens = new UserTokensValueObjectBuilder()
+				.setAmount(15_000)
+				.build();
+			tokens.subtract(3_000);
+			expect(tokens.amount).toEqual(12_000);
+		});
 	});
 });
