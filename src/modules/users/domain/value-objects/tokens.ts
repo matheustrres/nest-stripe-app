@@ -32,6 +32,7 @@ export class UserTokensValueObject implements UserTokensValueObjectProps {
 	}
 
 	hasSufficientBalance(amount: number): boolean {
+		UserTokensValueObject.#validate({ amount });
 		return this.amount >= amount;
 	}
 
