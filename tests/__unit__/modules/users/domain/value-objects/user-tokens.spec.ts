@@ -63,4 +63,12 @@ describe(UserTokensValueObject.name, () => {
 			expect(tokens.amount).toEqual(12_000);
 		});
 	});
+
+	it('should compare if tokens balance is sufficient', () => {
+		const tokens = new UserTokensValueObjectBuilder().setAmount(10_000).build();
+		expect(tokens.hasSufficientBalance(8_340)).toBe(true);
+		expect(tokens.hasSufficientBalance(13_000)).toBe(false);
+		expect(tokens.hasSufficientBalance(34_490)).toBe(false);
+		expect(tokens.hasSufficientBalance(2_920)).toBe(true);
+	});
 });
