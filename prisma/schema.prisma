@@ -13,6 +13,7 @@ model User {
   email        String        @unique
   password     String
   role         String
+  tokens       Float         @default(0)
   subscription Subscription?
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
