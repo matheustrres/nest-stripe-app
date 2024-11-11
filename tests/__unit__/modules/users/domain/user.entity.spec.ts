@@ -1,19 +1,27 @@
+import { userDefaultTokensAmount } from '@/@core/domain/constants/user-tokens';
 import { Role } from '@/@core/enums/user-role';
 
 import { UserEntity } from '@/modules/users/domain/user.entity';
 
+import { UserTokensValueObjectBuilder } from '#/__unit__/builders/users/value-objects/user-tokens.builder';
+
 describe(UserEntity.name, () => {
 	it('should create a new user', () => {
+		const userTokens = new UserTokensValueObjectBuilder()
+			.setAmount(userDefaultTokensAmount)
+			.build();
 		const user = UserEntity.createNew({
 			name: 'John Doe',
 			email: 'john.doe@gmail.com',
 			password: 'youshallnotpass',
+			tokens: userTokens,
 		});
-		const { name, email, role } = user.getProps();
+		const { name, email, role, tokens } = user.getProps();
 		expect(user).toBeDefined();
 		expect(name).toBe('John Doe');
 		expect(email).toBe('john.doe@gmail.com');
 		expect(role).toEqual(Role.User);
+		expect(tokens.amount).toEqual(userDefaultTokensAmount);
 	});
 
 	it('should restore a user', () => {

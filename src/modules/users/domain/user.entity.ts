@@ -1,5 +1,6 @@
 import { UserTokensValueObject } from './value-objects/tokens';
 
+import { userDefaultTokensAmount } from '@/@core/domain/constants/user-tokens';
 import { CreateEntityProps, Entity } from '@/@core/domain/entity';
 import { EntityCuid } from '@/@core/domain/entity-cuid';
 import { Role } from '@/@core/enums/user-role';
@@ -13,7 +14,10 @@ export type UserEntityProps = {
 	tokens: UserTokensValueObject;
 };
 
-type OptionaUserEntityConstructorProps = Optional<UserEntityProps, 'role'>;
+type OptionaUserEntityConstructorProps = Optional<
+	UserEntityProps,
+	'role' | 'tokens'
+>;
 type UserEntityConstructorProps =
 	CreateEntityProps<OptionaUserEntityConstructorProps>;
 type UpdateUserEntityProps = Partial<UserEntityProps>;
@@ -25,6 +29,8 @@ export class UserEntity extends Entity<UserEntityProps> {
 			props: {
 				...props,
 				role: props.role ?? Role.User,
+				tokens:
+					props.tokens ?? new UserTokensValueObject(userDefaultTokensAmount),
 			},
 			createdAt,
 		});

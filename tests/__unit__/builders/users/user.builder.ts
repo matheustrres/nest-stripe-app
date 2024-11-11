@@ -1,3 +1,5 @@
+import { UserTokensValueObjectBuilder } from './value-objects/user-tokens.builder';
+
 import { Role } from '@/@core/enums/user-role';
 
 import {
@@ -13,6 +15,7 @@ export class UserEntityBuilder {
 		email: FakerLib.internet.email(),
 		password: FakerLib.internet.password(),
 		role: Role.User,
+		tokens: new UserTokensValueObjectBuilder().build(),
 	};
 
 	getProps(): UserEntityProps {
