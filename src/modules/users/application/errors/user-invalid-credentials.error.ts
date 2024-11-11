@@ -1,10 +1,10 @@
 import { AppError } from '@/@core/application/errors/app-error';
-import { HttpStatusCode } from '@/@core/enums/http-status-code';
+import { HttpStatusCodeEnum } from '@/@core/enums/http-status-code';
 
 export class UserInvalidCredentialsError extends AppError {
 	constructor() {
 		super({
-			code: HttpStatusCode.UNAUTHORIZED,
+			code: HttpStatusCodeEnum.UNAUTHORIZED,
 			message: 'Invalid credentials',
 		});
 	}

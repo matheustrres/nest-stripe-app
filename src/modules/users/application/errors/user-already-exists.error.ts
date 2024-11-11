@@ -1,8 +1,8 @@
 import { AppError } from '@/@core/application/errors/app-error';
-import { HttpStatusCode } from '@/@core/enums/http-status-code';
+import { HttpStatusCodeEnum } from '@/@core/enums/http-status-code';
 
 export class UserAlreadyExistsError extends AppError {
-	private constructor(message: string, code = HttpStatusCode.CONFLICT) {
+	private constructor(message: string, code = HttpStatusCodeEnum.CONFLICT) {
 		super({
 			code,
 			message,

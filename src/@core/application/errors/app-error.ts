@@ -1,7 +1,7 @@
-import { HttpStatusCode } from '@/@core/enums/http-status-code';
+import { HttpStatusCodeEnum } from '@/@core/enums/http-status-code';
 
 export type AppErrorProps = {
-	code: HttpStatusCode;
+	code: HttpStatusCodeEnum;
 	message: string;
 };
 
