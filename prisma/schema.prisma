@@ -8,14 +8,29 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  password     String
+  role         String
+  subscription Subscription?
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
 
   @@index([email])
   @@map("users")
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  vendorSubscriptionId String   @map("vendor_subscription_id")
+  vendorCustomerId     String   @unique @map("vendor_customer_id")
+  vendorProductId      String   @map("vendor_product_id")
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               String   @unique @map("user_id")
+  status               String
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@map("subscriptions")
 }
