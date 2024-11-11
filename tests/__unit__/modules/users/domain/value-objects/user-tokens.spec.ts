@@ -20,11 +20,20 @@ describe(UserTokensValueObject.name, () => {
 		expect(tokens.amount).toEqual(1_000);
 	});
 
-	it('should sum up tokens', () => {
-		const tokens = new UserTokensValueObjectBuilder()
-			.setAmount(userDefaultTokensAmount)
-			.build();
-		tokens.add(3_000);
-		expect(tokens.amount).toEqual(4_000);
+	describe('when adding tokens', () => {
+		it('should throw if an invalid amount is provided', () => {
+			const tokens = new UserTokensValueObjectBuilder().build();
+			expect(() => tokens.add('3_000' as unknown as number)).toThrow(
+				'Argument {amount} is required and must be a positive number.',
+			);
+		});
+
+		it('should sum up tokens', () => {
+			const tokens = new UserTokensValueObjectBuilder()
+				.setAmount(userDefaultTokensAmount)
+				.build();
+			tokens.add(3_000);
+			expect(tokens.amount).toEqual(4_000);
+		});
 	});
 });
