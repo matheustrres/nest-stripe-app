@@ -16,6 +16,7 @@ type PlanMapping = {
 	frequency: VendorPlanFrequencyEnum;
 	price: number;
 	prodId: string;
+	tokensPerCycle: number;
 };
 type GetPlanByProductIdResponseType = Either<null, PlanMapping>;
 
@@ -46,6 +47,7 @@ export class CorePlansDomainService {
 						frequency: frequency as VendorPlanFrequencyEnum,
 						price: plan.price,
 						prodId: plan.prodId,
+						tokensPerCycle: plan.tokensPerCycle,
 					});
 			}
 		}
