@@ -9,7 +9,7 @@ describe(CoreTokensDomainService.name, () => {
 		service = new CoreTokensDomainService();
 	});
 
-	describe('.handleTokensByPlan', () => {
+	describe('.handleTokensByPlan()', () => {
 		describe('when handling plan tokens', () => {
 			it('should return an error if an invalid plan name is provided', () => {
 				const handlingTokensResult = service.handleTokensByPlan(
@@ -21,6 +21,16 @@ describe(CoreTokensDomainService.name, () => {
 				expect(handlingTokensResult.value).toStrictEqual(
 					new InvalidPlanDomainError(),
 				);
+			});
+
+			it('should return plan tokens', () => {
+				const handlingTokensResult = service.handleTokensByPlan(
+					VendorPlanNameEnum.ExecutiveMonthly,
+				);
+
+				expect(handlingTokensResult.isLeft()).toBe(false);
+				expect(handlingTokensResult.isRight()).toBe(true);
+				expect(handlingTokensResult.value).toEqual(7_000);
 			});
 		});
 	});
