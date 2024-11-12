@@ -29,4 +29,18 @@ describe(CorePlansDomainService.name, () => {
 			});
 		});
 	});
+
+	describe('.getPlanByProductId()', () => {
+		describe('when looking up for a plan by its product id', () => {
+			it('should return null for an invalid product id', () => {
+				const planFindingResult = service.getPlanByProductId(
+					'prod_PXmxWlrItuTMoÇv',
+				);
+
+				expect(planFindingResult.isLeft()).toBe(true);
+				expect(planFindingResult.isRight()).toBe(false);
+				expect(planFindingResult.value).toBe(null);
+			});
+		});
+	});
 });
