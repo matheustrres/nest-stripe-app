@@ -15,7 +15,6 @@
     "start:dev": "pnpm start --watch",
     "start:prod": "node --env-file=.env ./dist/main",
     "lint": "eslint \"{src,apps,libs,tests}/**/*.ts\" --fix",
-    "lint:fix": "pnpm format && eslint \"{src,apps,libs,tests}/**/*.ts\" --fix",
     "pretest": "rm -rf dist",
     "test": "dotenv -e .env.test -- jest --passWithNoTests",
     "test:watch": "pnpm test -- --watch",
