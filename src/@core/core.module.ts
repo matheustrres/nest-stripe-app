@@ -2,6 +2,8 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { validateEnv } from './config/env/validate';
+import { CorePlansDomainService } from './domain/services/plans.service';
+import { CoreTokensDomainService } from './domain/services/tokens.service';
 
 @Global()
 @Module({
@@ -12,5 +14,7 @@ import { validateEnv } from './config/env/validate';
 			validate: (config: Record<string, unknown>) => validateEnv(config),
 		}),
 	],
+	providers: [CorePlansDomainService, CoreTokensDomainService],
+	exports: [CorePlansDomainService, CoreTokensDomainService],
 })
 export class CoreModule {}
