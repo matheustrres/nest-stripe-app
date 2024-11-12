@@ -41,6 +41,23 @@ describe(CorePlansDomainService.name, () => {
 				expect(planFindingResult.isRight()).toBe(false);
 				expect(planFindingResult.value).toBe(null);
 			});
+
+			it('should return plan details', () => {
+				const planFindingResult = service.getPlanByProductId(
+					'prod_RBitgXwWrWB2Fz',
+				);
+
+				expect(planFindingResult.isLeft()).toBe(false);
+				expect(planFindingResult.isRight()).toBe(true);
+				expect(planFindingResult.value).toStrictEqual({
+					name: 'Essential Quarterly',
+					level: 'Essential',
+					frequency: 'Quarterly',
+					price: 79.9,
+					prodId: 'prod_RBitgXwWrWB2Fz',
+					tokensPerCycle: 3_100,
+				});
+			});
 		});
 	});
 });
