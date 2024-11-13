@@ -1,9 +1,9 @@
 import { Test } from '@nestjs/testing';
 
+import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { HashingService } from '@/@core/application/services/hashing.service';
 import { TokenizationService } from '@/@core/application/services/tokenization.service';
 
-import { UserInvalidCredentialsError } from '@/modules/users/application/errors/user-invalid-credentials.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 import { SignInUseCase } from '@/modules/users/application/use-cases/sign-in.use-case';
 
@@ -54,7 +54,7 @@ describe(SignInUseCase.name, () => {
 		expect(sut.exec).toBeDefined();
 	});
 
-	it('should throw a UserInvalidCredentialsError if incoming email address is invalid', async () => {
+	it('should throw a InvalidCredentialsError if incoming email address is invalid', async () => {
 		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
 		jest.spyOn(hashingService, 'compare');
 		jest.spyOn(tokenizationService, 'sign');
@@ -62,14 +62,14 @@ describe(SignInUseCase.name, () => {
 		const input = new SignInUseCaseBuilder().getInput();
 
 		await expect(sut.exec(input)).rejects.toThrow(
-			new UserInvalidCredentialsError(),
+			new InvalidCredentialsError(),
 		);
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.email);
 		expect(hashingService.compare).not.toHaveBeenCalled();
 		expect(tokenizationService.sign).not.toHaveBeenCalled();
 	});
 
-	it('should throw a UserInvalidCredentialsError if incoming password does not match user hashed password', async () => {
+	it('should throw a InvalidCredentialsError if incoming password does not match user hashed password', async () => {
 		const user = new UserEntityBuilder().build();
 
 		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(user);
@@ -81,7 +81,7 @@ describe(SignInUseCase.name, () => {
 		const input = new SignInUseCaseBuilder().setEmail(email).getInput();
 
 		await expect(sut.exec(input)).rejects.toThrow(
-			new UserInvalidCredentialsError(),
+			new InvalidCredentialsError(),
 		);
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.email);
 		expect(hashingService.compare).toHaveBeenCalledWith({
