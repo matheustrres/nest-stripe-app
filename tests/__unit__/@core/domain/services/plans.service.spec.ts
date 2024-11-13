@@ -42,7 +42,7 @@ describe(CorePlansDomainService.name, () => {
 				expect(planFindingResult.value).toBe(null);
 			});
 
-			it('should return plan details', () => {
+			it('should return full plan details', () => {
 				const planFindingResult = service.getPlanByProductId(
 					'prod_RBitgXwWrWB2Fz',
 				);
@@ -54,6 +54,7 @@ describe(CorePlansDomainService.name, () => {
 					level: 'Essential',
 					frequency: 'Quarterly',
 					price: 79.9,
+					priceId: 'price_1QJLRSP7QrM0bVUXLLVADrvV',
 					prodId: 'prod_RBitgXwWrWB2Fz',
 					tokensPerCycle: 3_100,
 				});
