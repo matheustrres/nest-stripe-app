@@ -1,4 +1,4 @@
-import { CorePlansDomainService } from '@/@core/domain/services/plans.service';
+import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
 import { VendorPlanNameEnum } from '@/@core/enums/vendor-plan';
 
 describe(CorePlansDomainService.name, () => {

@@ -1,5 +1,5 @@
 import { InvalidPlanDomainError } from '@/@core/domain/errors/invalid-plan.error';
-import { CoreTokensDomainService } from '@/@core/domain/services/tokens.service';
+import { CoreTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
 import { VendorPlanNameEnum } from '@/@core/enums/vendor-plan';
 
 describe(CoreTokensDomainService.name, () => {

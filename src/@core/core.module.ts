@@ -2,8 +2,8 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { validateEnv } from './config/env/validate';
-import { CorePlansDomainService } from './domain/services/plans.service';
-import { CoreTokensDomainService } from './domain/services/tokens.service';
+import { CorePlansDomainService } from './domain/services/vendor-plans.service';
+import { CoreTokensDomainService } from './domain/services/vendor-tokens.service';
 
 @Global()
 @Module({

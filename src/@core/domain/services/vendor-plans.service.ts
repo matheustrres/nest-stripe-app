@@ -1,8 +1,8 @@
 import {
-	FullPlanDetails,
+	FullVendorPlanDetails,
 	VendorPlansMap,
 	VendorPlansMapType,
-} from '@/@core/domain/constants/plans-map';
+} from '@/@core/domain/constants/vendor-plans-map';
 import { Either, left, right } from '@/@core/domain/logic/either';
 import { NodeEnvEnum } from '@/@core/enums/node-env';
 import {
@@ -11,7 +11,7 @@ import {
 	VendorPlanNameEnum,
 } from '@/@core/enums/vendor-plan';
 
-type GetPlanByProductIdResponseType = Either<null, FullPlanDetails>;
+type GetPlanByProductIdResponseType = Either<null, FullVendorPlanDetails>;
 
 export class CorePlansDomainService {
 	readonly #plans: VendorPlansMapType = VendorPlansMap;

@@ -17,7 +17,7 @@ import {
 	VendorPlanNameEnum,
 } from '@/@core/enums/vendor-plan';
 
-export type PlanDetails = {
+export type VendorPlanDetails = {
 	name: VendorPlanNameEnum;
 	price: number;
 	priceId: string;
@@ -25,7 +25,7 @@ export type PlanDetails = {
 	tokensPerCycle: number;
 };
 
-export type FullPlanDetails = PlanDetails & {
+export type FullVendorPlanDetails = VendorPlanDetails & {
 	level: VendorPlanLevelEnum;
 	frequency: VendorPlanFrequencyEnum;
 };
@@ -33,7 +33,7 @@ export type FullPlanDetails = PlanDetails & {
 export type VendorPlansMapType = {
 	[environment in NodeEnvEnum]: {
 		[level in VendorPlanLevelEnum]: {
-			[frequency in VendorPlanFrequencyEnum]: PlanDetails;
+			[frequency in VendorPlanFrequencyEnum]: VendorPlanDetails;
 		};
 	};
 };
