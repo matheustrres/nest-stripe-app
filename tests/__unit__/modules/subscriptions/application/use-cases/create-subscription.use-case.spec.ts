@@ -1,10 +1,12 @@
 import { Test } from '@nestjs/testing';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
+import { left } from '@/@core/domain/logic/either';
 import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
 import { CoreTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
+import { InvalidVendorSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-vendor-subscription-action.error';
 import { SubscriptionAlreadyExistsError } from '@/modules/subscriptions/application/errors/subscription-already-exists.error';
 import { SubscriptionsRepository } from '@/modules/subscriptions/application/repositories/subscriptions.repository';
 import { CreateSubscriptionUseCase } from '@/modules/subscriptions/application/use-cases/create-subscription.use-case';
@@ -124,6 +126,36 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
+		);
+	});
+
+	it('should throw a InvalidVendorSubscriptionActionError if no product is found with given {productId}', async () => {
+		const user = new UserEntityBuilder().build();
+
+		jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+		jest
+			.spyOn(subscriptionsRepository, 'findByUserId')
+			.mockResolvedValueOnce(null);
+		jest
+			.spyOn(corePlansDomainService, 'getPlanByProductId')
+			.mockReturnValueOnce(left(null));
+
+		const productId = 'invalid_product_id';
+
+		const input = new CreateSubscriptionUseCaseBuilder()
+			.setUserId(user.id)
+			.setProductId(productId)
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			InvalidVendorSubscriptionActionError.productNotFound(productId),
+		);
+		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
+		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
+			input.userId,
+		);
+		expect(corePlansDomainService.getPlanByProductId).toHaveBeenCalledWith(
+			productId,
 		);
 	});
 });
