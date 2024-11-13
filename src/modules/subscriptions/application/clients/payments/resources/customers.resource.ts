@@ -1,6 +1,6 @@
 import { Either } from '@/@core/domain/logic/either';
 
-export type VendorCustomer = {
+export type VendorCustomerType = {
 	id: string;
 	email: string;
 	defaultPaymentMethodId: string | null;
@@ -16,6 +16,6 @@ export abstract class VendorCustomersResource {
 	abstract create(
 		email: string,
 		paymentMethodId: string,
-	): Promise<Either<null, VendorCustomer>>;
+	): Promise<Either<null, VendorCustomerType>>;
 	abstract delete(customerId: string): Promise<void>;
 }

@@ -13,6 +13,7 @@ import { CreateSubscriptionUseCase } from '@/modules/subscriptions/application/u
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
 import { SubscriptionEntityBuilder } from '#/__unit__/builders/subscriptions/subscription.builder';
+import { VendorCustomerBuilder } from '#/__unit__/builders/subscriptions/types/vendor-customer.builder';
 import { VendorPaymentMethodBuilder } from '#/__unit__/builders/subscriptions/types/vendor-payment-method.builder';
 import { VendorPlanBuilder } from '#/__unit__/builders/subscriptions/types/vendor-plan.builder';
 import { CreateSubscriptionUseCaseBuilder } from '#/__unit__/builders/subscriptions/use-cases/create-subscription.builder';
@@ -248,6 +249,68 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(vendorPaymentsClient.customers.create).toHaveBeenCalledWith(
 			email,
 			paymentMethodId,
+		);
+	});
+
+	it('should throw a InvalidVendorSubscriptionActionError if an error occurs when creating a subscription and delete the previous vendor customer created', async () => {
+		const user = new UserEntityBuilder().build();
+		const vendorPlan = new VendorPlanBuilder().build();
+		const vendorPM = new VendorPaymentMethodBuilder().build();
+		const { email } = user.getProps();
+		const vendorCustomer = new VendorCustomerBuilder().setEmail(email).build();
+
+		jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+		jest
+			.spyOn(subscriptionsRepository, 'findByUserId')
+			.mockResolvedValueOnce(null);
+		jest
+			.spyOn(corePlansDomainService, 'getPlanByProductId')
+			.mockReturnValueOnce(right(vendorPlan));
+		jest
+			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
+			.mockResolvedValueOnce(right(vendorPM));
+		jest
+			.spyOn(vendorPaymentsClient.customers, 'create')
+			.mockResolvedValueOnce(right(vendorCustomer));
+		jest.spyOn(vendorPaymentsClient.customers, 'delete');
+		jest
+			.spyOn(vendorPaymentsClient.subscriptions, 'create')
+			.mockResolvedValueOnce(left(null));
+
+		const productId = vendorPlan.prodId;
+		const paymentMethodId = vendorPM.id;
+		const customerId = vendorCustomer.id;
+
+		const input = new CreateSubscriptionUseCaseBuilder()
+			.setUserId(user.id)
+			.setProductId(productId)
+			.setPaymentMethodId(paymentMethodId)
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			InvalidVendorSubscriptionActionError.byCreatingSubscription(),
+		);
+		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
+		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
+			input.userId,
+		);
+		expect(corePlansDomainService.getPlanByProductId).toHaveBeenCalledWith(
+			productId,
+		);
+		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(
+			paymentMethodId,
+		);
+		expect(vendorPaymentsClient.customers.create).toHaveBeenCalledWith(
+			email,
+			paymentMethodId,
+		);
+		expect(vendorPaymentsClient.subscriptions.create).toHaveBeenCalledWith(
+			customerId,
+			vendorPlan.priceId,
+			paymentMethodId,
+		);
+		expect(vendorPaymentsClient.customers.delete).toHaveBeenCalledWith(
+			customerId,
 		);
 	});
 });
