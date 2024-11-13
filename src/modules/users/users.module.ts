@@ -1,11 +1,24 @@
+import { AdaptersModule } from '@/infra/adapters/adapters.module';
 import { Module } from '@nestjs/common';
+
+import { UsersRepository } from './application/repositories/users.repository';
+import { SignInUseCase } from './application/use-cases/sign-in.use-case';
+import { SignUpUseCase } from './application/use-cases/sign-up.use-case';
+import { PrismaUsersRepository } from './infra/drivers/database/users.repository';
 
 import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 
 @Module({
-	imports: [PrismaModule],
-	providers: [],
+	imports: [PrismaModule, AdaptersModule],
+	providers: [
+		{
+			provide: UsersRepository,
+			useClass: PrismaUsersRepository,
+		},
+		SignInUseCase,
+		SignUpUseCase,
+	],
 	controllers: [],
-	exports: [],
+	exports: [UsersRepository],
 })
 export class UsersModule {}
