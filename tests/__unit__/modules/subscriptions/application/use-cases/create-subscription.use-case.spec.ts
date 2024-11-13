@@ -5,11 +5,14 @@ import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.ser
 import { CoreTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
+import { SubscriptionAlreadyExistsError } from '@/modules/subscriptions/application/errors/subscription-already-exists.error';
 import { SubscriptionsRepository } from '@/modules/subscriptions/application/repositories/subscriptions.repository';
 import { CreateSubscriptionUseCase } from '@/modules/subscriptions/application/use-cases/create-subscription.use-case';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
+import { SubscriptionEntityBuilder } from '#/__unit__/builders/subscriptions/subscription.builder';
 import { CreateSubscriptionUseCaseBuilder } from '#/__unit__/builders/subscriptions/use-cases/create-subscription.builder';
+import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(CreateSubscriptionUseCase.name, () => {
 	let corePlansDomainService: CorePlansDomainService;
@@ -96,6 +99,31 @@ describe(CreateSubscriptionUseCase.name, () => {
 
 		await expect(sut.exec(input)).rejects.toThrow(
 			new InvalidCredentialsError(),
+		);
+		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
+	});
+
+	it('should throw a SubscriptionAlreadyExistsError if user already has a subscription', async () => {
+		const user = new UserEntityBuilder().build();
+		const subscription = new SubscriptionEntityBuilder()
+			.setUserId(user.id)
+			.build();
+
+		jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+		jest
+			.spyOn(subscriptionsRepository, 'findByUserId')
+			.mockResolvedValueOnce(subscription);
+
+		const input = new CreateSubscriptionUseCaseBuilder()
+			.setUserId(user.id)
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			SubscriptionAlreadyExistsError.byUser(input.userId),
+		);
+		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
+		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
+			input.userId,
 		);
 	});
 });
