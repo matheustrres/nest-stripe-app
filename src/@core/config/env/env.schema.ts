@@ -41,6 +41,10 @@ export class EnvSchema {
 
 	@IsString()
 	@IsNotEmpty()
+	JWT_KEY?: string;
+
+	@IsString()
+	@IsNotEmpty()
 	STRIPE_PUBLIC_KEY?: string;
 
 	@IsString()
