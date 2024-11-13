@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
-import { left } from '@/@core/domain/logic/either';
+import { left, right } from '@/@core/domain/logic/either';
 import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
 import { CoreTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
 
@@ -13,6 +13,7 @@ import { CreateSubscriptionUseCase } from '@/modules/subscriptions/application/u
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
 import { SubscriptionEntityBuilder } from '#/__unit__/builders/subscriptions/subscription.builder';
+import { VendorPlanBuilder } from '#/__unit__/builders/subscriptions/types/vendor-plan.builder';
 import { CreateSubscriptionUseCaseBuilder } from '#/__unit__/builders/subscriptions/use-cases/create-subscription.builder';
 import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
@@ -129,7 +130,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		);
 	});
 
-	it('should throw a InvalidVendorSubscriptionActionError if no product is found with given {productId}', async () => {
+	it('should throw a InvalidVendorSubscriptionActionError if no vendor product is found with given {productId}', async () => {
 		const user = new UserEntityBuilder().build();
 
 		jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
@@ -156,6 +157,47 @@ describe(CreateSubscriptionUseCase.name, () => {
 		);
 		expect(corePlansDomainService.getPlanByProductId).toHaveBeenCalledWith(
 			productId,
+		);
+	});
+
+	it('should throw a InvalidVendorSubscriptionActionError if no vendor payment method is found with given {paymentMethodId}', async () => {
+		const user = new UserEntityBuilder().build();
+		const vendorPlan = new VendorPlanBuilder().build();
+
+		jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+		jest
+			.spyOn(subscriptionsRepository, 'findByUserId')
+			.mockResolvedValueOnce(null);
+		jest
+			.spyOn(corePlansDomainService, 'getPlanByProductId')
+			.mockReturnValueOnce(right(vendorPlan));
+		jest
+			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
+			.mockResolvedValueOnce(left(null));
+
+		const productId = vendorPlan.prodId;
+		const paymentMethodId = 'invalid_payment_method_id';
+
+		const input = new CreateSubscriptionUseCaseBuilder()
+			.setUserId(user.id)
+			.setProductId(productId)
+			.setPaymentMethodId(paymentMethodId)
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			InvalidVendorSubscriptionActionError.paymentMethodNotFound(
+				paymentMethodId,
+			),
+		);
+		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
+		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
+			input.userId,
+		);
+		expect(corePlansDomainService.getPlanByProductId).toHaveBeenCalledWith(
+			productId,
+		);
+		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(
+			paymentMethodId,
 		);
 	});
 });
