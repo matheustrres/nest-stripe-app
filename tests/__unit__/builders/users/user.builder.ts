@@ -42,6 +42,13 @@ export class UserEntityBuilder {
 		return this;
 	}
 
+	setTokens(tokens: number): this {
+		this.#props.tokens = new UserTokensValueObjectBuilder()
+			.setAmount(tokens)
+			.build();
+		return this;
+	}
+
 	build(): UserEntity {
 		return UserEntity.createNew(this.#props);
 	}

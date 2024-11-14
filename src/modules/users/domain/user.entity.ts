@@ -6,12 +6,15 @@ import { EntityCuid } from '@/@core/domain/entity-cuid';
 import { Role } from '@/@core/enums/user-role';
 import { Optional } from '@/@core/types';
 
+import { SubscriptionEntity } from '@/modules/subscriptions/domain/subscription.entity';
+
 export type UserEntityProps = {
 	name: string;
 	email: string;
 	password: string;
 	role: Role;
 	tokens: UserTokensValueObject;
+	subscription?: SubscriptionEntity;
 };
 
 type OptionaUserEntityConstructorProps = Optional<
