@@ -4,7 +4,7 @@ import { SignUpBodyDto } from '@/modules/users/infra/drivers/http/rest/dtos/sign
 
 import { OpenApiRoute } from '@/shared/libs/swagger/openapi';
 
-export function SignUpSwaggerResponse() {
+export function SignUpSwaggerRoute() {
 	return OpenApiRoute({
 		operation: {
 			description: 'Create a user in the API',

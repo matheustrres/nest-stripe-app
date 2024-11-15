@@ -4,7 +4,7 @@ import { SignInBodyDto } from '@/modules/users/infra/drivers/http/rest/dtos/sign
 
 import { OpenApiRoute } from '@/shared/libs/swagger/openapi';
 
-export function SignInSwaggerResponse() {
+export function SignInSwaggerRoute() {
 	return OpenApiRoute({
 		operation: {
 			description: 'Authenticates a user to the API',
