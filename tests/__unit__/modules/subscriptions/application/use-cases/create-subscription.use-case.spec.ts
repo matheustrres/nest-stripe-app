@@ -3,14 +3,10 @@ import { Test } from '@nestjs/testing';
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { ExecutiveAnnualTokens } from '@/@core/domain/constants/tokens-per-plan';
 import { userDefaultTokensAmount } from '@/@core/domain/constants/user-tokens';
+import { VendorPlansMap } from '@/@core/domain/constants/vendor-plans-map';
 import { left, right } from '@/@core/domain/logic/either';
 import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
 import { CoreTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
-import {
-	VendorPlanFrequencyEnum,
-	VendorPlanLevelEnum,
-	VendorPlanNameEnum,
-} from '@/@core/enums/vendor-plan';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
 import { InvalidVendorSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-vendor-subscription-action.error';
@@ -29,7 +25,6 @@ import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(CreateSubscriptionUseCase.name, () => {
 	let corePlansDomainService: CorePlansDomainService;
-	let coreTokensDomainService: CoreTokensDomainService;
 	let usersRepository: UsersRepository;
 	let subscriptionsRepository: SubscriptionsRepository;
 	let vendorPaymentsClient: VendorPaymentsClient;
@@ -84,7 +79,6 @@ describe(CreateSubscriptionUseCase.name, () => {
 		}).compile();
 
 		corePlansDomainService = moduleRef.get(CorePlansDomainService);
-		coreTokensDomainService = moduleRef.get(CoreTokensDomainService);
 		usersRepository = moduleRef.get(UsersRepository);
 		subscriptionsRepository = moduleRef.get(SubscriptionsRepository);
 		vendorPaymentsClient = moduleRef.get(VendorPaymentsClient);
@@ -93,7 +87,6 @@ describe(CreateSubscriptionUseCase.name, () => {
 
 	it('should be defined', () => {
 		expect(corePlansDomainService.getPlanByProductId).toBeDefined();
-		expect(coreTokensDomainService.handleTokensByPlan).toBeDefined();
 		expect(usersRepository.findOne).toBeDefined();
 		expect(usersRepository.upsert).toBeDefined();
 		expect(subscriptionsRepository.findByUserId).toBeDefined();
@@ -327,9 +320,8 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.setTokens(userDefaultTokensAmount)
 			.build();
 		const vendorPlan = new VendorPlanBuilder()
-			.setName(VendorPlanNameEnum.ExecutiveAnnual)
-			.setLevel(VendorPlanLevelEnum.Executive)
-			.setFrequency(VendorPlanFrequencyEnum.Annual)
+			.setProdId(VendorPlansMap.testing.Executive.Annual.prodId)
+			.setTokensPerCycle(VendorPlansMap.testing.Executive.Annual.tokensPerCycle)
 			.build();
 		const vendorPM = new VendorPaymentMethodBuilder().build();
 		const { email, tokens } = user.getProps();
@@ -355,9 +347,6 @@ describe(CreateSubscriptionUseCase.name, () => {
 		jest
 			.spyOn(vendorPaymentsClient.subscriptions, 'create')
 			.mockResolvedValueOnce(right(vendorSubscription));
-		jest
-			.spyOn(coreTokensDomainService, 'handleTokensByPlan')
-			.mockReturnValueOnce(right(ExecutiveAnnualTokens));
 		jest.spyOn(usersRepository, 'upsert');
 		jest.spyOn(subscriptionsRepository, 'upsert');
 
@@ -377,6 +366,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		const { subscription } = await sut.exec(input);
 
 		const newUserTokensAmount = user.getProps().tokens.amount;
+		expect(newUserTokensAmount).toEqual(ExecutiveAnnualTokens);
 
 		expect(subscription).toBeDefined();
 		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
@@ -400,10 +390,6 @@ describe(CreateSubscriptionUseCase.name, () => {
 		);
 		expect(vendorPaymentsClient.customers.delete).not.toHaveBeenCalledWith();
 		expect(subscriptionsRepository.upsert).toHaveBeenCalled();
-		expect(coreTokensDomainService.handleTokensByPlan).toHaveBeenCalledWith(
-			vendorPlan.name,
-		);
 		expect(usersRepository.upsert).toHaveBeenCalled();
-		expect(newUserTokensAmount).toEqual(ExecutiveAnnualTokens);
 	});
 });
