@@ -45,7 +45,7 @@ export class SignUpUseCase
 			password: hashedPassword,
 			role,
 		});
-		await this.usersRepository.insert(user);
+		await this.usersRepository.upsert(user);
 
 		return {
 			user,

@@ -44,20 +44,14 @@ export class PrismaSubscriptionsRepository implements SubscriptionsRepository {
 		return new PrismaSubscriptionMapper().toDomain(record);
 	}
 
-	async insert(entity: SubscriptionEntity): Promise<void> {
+	async upsert(entity: SubscriptionEntity): Promise<void> {
 		const data = new PrismaSubscriptionMapper().toPersist(entity);
-		await this.prismaService.subscription.create({
-			data,
-		});
-	}
-
-	async update(entity: SubscriptionEntity): Promise<void> {
-		const data = new PrismaSubscriptionMapper().toPersist(entity);
-		await this.prismaService.subscription.update({
+		await this.prismaService.subscription.upsert({
 			where: {
 				id: entity.id.value,
 			},
-			data,
+			create: data,
+			update: data,
 		});
 	}
 }

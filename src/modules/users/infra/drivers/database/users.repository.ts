@@ -45,20 +45,14 @@ export class PrismaUsersRepository implements UsersRepository {
 		return new PrismaUserMapper().toDomain(record);
 	}
 
-	async insert(entity: UserEntity): Promise<void> {
+	async upsert(entity: UserEntity): Promise<void> {
 		const data = new PrismaUserMapper().toPersist(entity);
-		await this.prismaService.user.create({
-			data,
-		});
-	}
-
-	async update(entity: UserEntity): Promise<void> {
-		const data = new PrismaUserMapper().toPersist(entity);
-		await this.prismaService.user.update({
+		await this.prismaService.user.upsert({
 			where: {
 				id: entity.id.value,
 			},
-			data,
+			create: data,
+			update: data,
 		});
 	}
 }

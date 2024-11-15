@@ -21,7 +21,7 @@ describe(SignUpUseCase.name, () => {
 					provide: UsersRepository,
 					useValue: {
 						findByEmail: jest.fn(),
-						insert: jest.fn(),
+						upsert: jest.fn(),
 					},
 				},
 				{
@@ -50,7 +50,7 @@ describe(SignUpUseCase.name, () => {
 
 		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(user);
 		jest.spyOn(hashingService, 'hash');
-		jest.spyOn(usersRepository, 'insert');
+		jest.spyOn(usersRepository, 'upsert');
 
 		const { email } = user.getProps();
 
@@ -61,7 +61,7 @@ describe(SignUpUseCase.name, () => {
 		);
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(email);
 		expect(hashingService.hash).not.toHaveBeenCalled();
-		expect(usersRepository.insert).not.toHaveBeenCalled();
+		expect(usersRepository.upsert).not.toHaveBeenCalled();
 	});
 
 	it('should sign up a user', async () => {
@@ -70,7 +70,7 @@ describe(SignUpUseCase.name, () => {
 
 		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
 		jest.spyOn(hashingService, 'hash').mockResolvedValueOnce(hashedPassword);
-		jest.spyOn(usersRepository, 'insert');
+		jest.spyOn(usersRepository, 'upsert');
 
 		const userProps = user.getProps();
 
@@ -84,7 +84,7 @@ describe(SignUpUseCase.name, () => {
 
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.email);
 		expect(hashingService.hash).toHaveBeenCalledWith(input.password);
-		expect(usersRepository.insert).toHaveBeenCalled();
+		expect(usersRepository.upsert).toHaveBeenCalled();
 		expect(newUser).toBeDefined();
 		expect(newUserProps.name).toEqual(userProps.name);
 		expect(newUserProps.email).toEqual(userProps.email);

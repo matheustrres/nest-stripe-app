@@ -54,14 +54,14 @@ describe(CreateSubscriptionUseCase.name, () => {
 					provide: UsersRepository,
 					useValue: {
 						findOne: jest.fn(),
-						update: jest.fn(),
+						upsert: jest.fn(),
 					},
 				},
 				{
 					provide: SubscriptionsRepository,
 					useValue: {
 						findByUserId: jest.fn(),
-						insert: jest.fn(),
+						upsert: jest.fn(),
 					},
 				},
 				{
@@ -95,9 +95,9 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(corePlansDomainService.getPlanByProductId).toBeDefined();
 		expect(coreTokensDomainService.handleTokensByPlan).toBeDefined();
 		expect(usersRepository.findOne).toBeDefined();
-		expect(usersRepository.update).toBeDefined();
+		expect(usersRepository.upsert).toBeDefined();
 		expect(subscriptionsRepository.findByUserId).toBeDefined();
-		expect(subscriptionsRepository.insert).toBeDefined();
+		expect(subscriptionsRepository.upsert).toBeDefined();
 		expect(vendorPaymentsClient.customers.create).toBeDefined();
 		expect(vendorPaymentsClient.customers.delete).toBeDefined();
 		expect(vendorPaymentsClient.paymentMethods.findById).toBeDefined();
@@ -358,8 +358,8 @@ describe(CreateSubscriptionUseCase.name, () => {
 		jest
 			.spyOn(coreTokensDomainService, 'handleTokensByPlan')
 			.mockReturnValueOnce(right(ExecutiveAnnualTokens));
-		jest.spyOn(usersRepository, 'update');
-		jest.spyOn(subscriptionsRepository, 'insert');
+		jest.spyOn(usersRepository, 'upsert');
+		jest.spyOn(subscriptionsRepository, 'upsert');
 
 		const productId = vendorPlan.prodId;
 		const paymentMethodId = vendorPM.id;
@@ -399,11 +399,11 @@ describe(CreateSubscriptionUseCase.name, () => {
 			paymentMethodId,
 		);
 		expect(vendorPaymentsClient.customers.delete).not.toHaveBeenCalledWith();
-		expect(subscriptionsRepository.insert).toHaveBeenCalled();
+		expect(subscriptionsRepository.upsert).toHaveBeenCalled();
 		expect(coreTokensDomainService.handleTokensByPlan).toHaveBeenCalledWith(
 			vendorPlan.name,
 		);
-		expect(usersRepository.update).toHaveBeenCalled();
+		expect(usersRepository.upsert).toHaveBeenCalled();
 		expect(newUserTokensAmount).toEqual(ExecutiveAnnualTokens);
 	});
 });
