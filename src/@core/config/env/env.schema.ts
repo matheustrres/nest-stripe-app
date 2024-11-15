@@ -1,4 +1,4 @@
-import { IsEnum, IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsString, Matches } from 'class-validator';
 
 import { NodeEnvEnum } from '@/@core/enums/node-env';
 
@@ -45,9 +45,11 @@ export class EnvSchema {
 
 	@IsString()
 	@IsNotEmpty()
+	@Matches(/^pk_test_.*$/)
 	STRIPE_PUBLIC_KEY?: string;
 
 	@IsString()
 	@IsNotEmpty()
+	@Matches(/^sk_test_.*$/)
 	STRIPE_TEST_KEY?: string;
 }
