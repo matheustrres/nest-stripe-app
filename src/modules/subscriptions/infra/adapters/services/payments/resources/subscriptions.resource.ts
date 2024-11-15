@@ -21,15 +21,17 @@ export class StripeSubscriptionsResourceAdapter
 		priceId: string,
 		paymentMethodId: string,
 	): Promise<Either<null, VendorSubscriptionType>> {
-		const stripeSubscription = await this.stripeClient.subscriptions.create({
-			customer: customerId,
-			items: [
-				{
-					price: priceId,
-				},
-			],
-			default_payment_method: paymentMethodId,
-		});
+		const stripeSubscription = await this.stripeClient.subscriptions
+			.create({
+				customer: customerId,
+				items: [
+					{
+						price: priceId,
+					},
+				],
+				default_payment_method: paymentMethodId,
+			})
+			.catch(() => null);
 		if (!stripeSubscription) return left(null);
 		return right(this.#buildVendorSubscription(stripeSubscription));
 	}

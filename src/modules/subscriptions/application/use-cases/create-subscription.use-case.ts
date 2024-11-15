@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { UseCase } from '@/@core/application/use-case';
 import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
-import { CoreTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
 import { InvalidVendorSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-vendor-subscription-action.error';
@@ -32,7 +31,6 @@ export class CreateSubscriptionUseCase
 {
 	constructor(
 		private readonly corePlansDomainService: CorePlansDomainService,
-		private readonly coreTokensDomainService: CoreTokensDomainService,
 		private readonly usersRepository: UsersRepository,
 		private readonly subscriptionsRepository: SubscriptionsRepository,
 		private readonly vendorPaymentsClient: VendorPaymentsClient,
@@ -106,24 +104,13 @@ export class CreateSubscriptionUseCase
 			vendorSubscriptionId: vendorSubscription.id,
 		});
 
-		await this.subscriptionsRepository.insert(subscription);
-
-		const userTokensHandlingResult =
-			this.coreTokensDomainService.handleTokensByPlan(vendorProduct.name);
-		if (userTokensHandlingResult.isLeft()) {
-			throw new InvalidVendorSubscriptionActionError(
-				userTokensHandlingResult.value.message,
-			);
-		}
-
-		const userTokens = userTokensHandlingResult.value;
+		await this.subscriptionsRepository.upsert(subscription);
 
 		user.update({
-			tokens: new UserTokensValueObject(userTokens),
-			subscription,
+			tokens: new UserTokensValueObject(vendorProduct.tokensPerCycle),
 		});
 
-		await this.usersRepository.update(user);
+		await this.usersRepository.upsert(user);
 
 		return {
 			subscription,
