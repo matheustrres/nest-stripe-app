@@ -112,7 +112,6 @@ export const VendorPlansMap: VendorPlansMapType = {
 		},
 	},
 	[NodeEnvEnum.PRODUCTION]: {
-		// Mantém como está (sem a propriedade priceId)
 		[VendorPlanLevelEnum.Essential]: {
 			[VendorPlanFrequencyEnum.Monthly]: {
 				name: VendorPlanNameEnum.EssentialMonthly,

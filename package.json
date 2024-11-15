@@ -8,6 +8,7 @@
   "scripts": {
     "docker:up": "docker-compose up -d",
     "docker:stop": "docker-compose -f docker-compose.yml down --remove-orphans",
+    "prebuild": "rm -rf dist",
     "build": "nest build -p ./tsconfig.build.json -c ./nest-cli.json -b swc",
     "postbuild": "find dist -name '*.spec.js' -o -name '__tests__' | xargs rm -rf",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",

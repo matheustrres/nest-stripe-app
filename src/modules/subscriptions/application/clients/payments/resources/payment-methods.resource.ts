@@ -19,19 +19,18 @@ export type VendorCardType = {
 	country: string | null;
 	expMonth?: number;
 	expYear?: number;
-	funding: VendorCardFundingTypeEnum | undefined;
+	funding?: VendorCardFundingTypeEnum;
 	last4digits?: string;
 	cvcCheck: VendorCardCVCTypeEnum | null;
 };
 
 export type VendorBoletoType = {
-	taxId: string;
+	taxId?: string;
 };
 
 export enum VendorPaymentMethodTypeEnum {
 	Card = 'card',
 	Boleto = 'boleto',
-	Pix = 'pix',
 }
 
 export type VendorPaymentMethodWithCardType = {
@@ -42,20 +41,16 @@ export type VendorPaymentMethodWithBoletoType = {
 	type: VendorPaymentMethodTypeEnum.Boleto;
 	boleto: VendorBoletoType;
 };
-export type VendorPaymentMethodWithPixType = {
-	type: VendorPaymentMethodTypeEnum.Pix;
-	pix: string;
-};
-export type VendorPaymentMethodTypeType =
+
+export type VendorPaymentMethodOptionsType =
 	| VendorPaymentMethodWithCardType
-	| VendorPaymentMethodWithBoletoType
-	| VendorPaymentMethodWithPixType;
+	| VendorPaymentMethodWithBoletoType;
 
 export type VendorPaymentMethodType = {
 	id: string;
 	customer: string | null;
 	created: number;
-} & VendorPaymentMethodTypeType;
+} & VendorPaymentMethodOptionsType;
 
 export abstract class VendorPaymentMethodsResource {
 	abstract attach(paymentMethodId: string, customerId: string): Promise<void>;

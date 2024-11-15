@@ -9,14 +9,26 @@ export type VendorPlanType = {
 	intervalCount?: number;
 };
 
+export enum VendorSubscriptionStatusEnum {
+	Active = 'active',
+	Canceled = 'canceled',
+	Incomplete = 'incomplete',
+	IncompleteExpired = 'incompleteExpired',
+	PastDue = 'pastDue',
+	Paused = 'paused',
+	Trialing = 'trialing',
+	Unpaid = 'unpaid',
+}
+
 export type VendorSubscriptionType = {
 	id: string;
+	customer: string;
 	currentPeriodEnd: number;
 	currentPeriodStart: number;
 	cancelAtPeriodEnd: boolean;
 	currency: string;
 	latestInvoice: string | null;
-	status: string;
+	status: VendorSubscriptionStatusEnum;
 	cancelAt: number | null;
 	plan?: VendorPlanType;
 	created: number;

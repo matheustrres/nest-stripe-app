@@ -6,3 +6,5 @@ export type JwtPayload = {
 	sub: string;
 	role: Role;
 };
+
+export type WithoutUserId<T> = Omit<T, 'userId'>;
