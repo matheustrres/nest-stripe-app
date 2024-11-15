@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { HashingService } from '@/@core/application/services/hashing.service';
 import { UseCase } from '@/@core/application/use-case';
+import { Role } from '@/@core/enums/user-role';
 
 import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
@@ -11,6 +12,7 @@ export type SignUpUseCaseInput = {
 	name: string;
 	email: string;
 	password: string;
+	role?: Role;
 };
 
 export type SignUpUseCaseOutput = {
@@ -30,6 +32,7 @@ export class SignUpUseCase
 		name,
 		email,
 		password,
+		role,
 	}: SignUpUseCaseInput): Promise<SignUpUseCaseOutput> {
 		const userAlreadyExistsByEmail =
 			await this.usersRepository.findByEmail(email);
@@ -40,6 +43,7 @@ export class SignUpUseCase
 			name,
 			email,
 			password: hashedPassword,
+			role,
 		});
 		await this.usersRepository.insert(user);
 
