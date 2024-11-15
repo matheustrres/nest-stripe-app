@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 
+import { EnvService } from '@/@core/config/env/env.service';
+
 (async () => {
 	const app = await NestFactory.create(AppModule);
 	app.useGlobalPipes(
@@ -12,5 +14,7 @@ import { AppModule } from './app.module';
 			transform: true,
 		}),
 	);
-	await app.listen(3000);
+	const envService = app.get(EnvService);
+	const appPort = envService.getKeyOrThrow('PORT');
+	await app.listen(appPort);
 })();

@@ -5,6 +5,7 @@ import { UsersRepository } from './application/repositories/users.repository';
 import { SignInUseCase } from './application/use-cases/sign-in.use-case';
 import { SignUpUseCase } from './application/use-cases/sign-up.use-case';
 import { PrismaUsersRepository } from './infra/drivers/database/users.repository';
+import { UsersController } from './infra/drivers/http/rest/users.controller';
 
 import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 
@@ -18,7 +19,7 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 		SignInUseCase,
 		SignUpUseCase,
 	],
-	controllers: [],
+	controllers: [UsersController],
 	exports: [UsersRepository],
 })
 export class UsersModule {}
