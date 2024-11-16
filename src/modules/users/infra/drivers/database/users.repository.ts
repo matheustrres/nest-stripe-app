@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaUserMapper } from './user.mapper';
 
-import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
+import {
+	FindOptions,
+	UsersRepository,
+} from '@/modules/users/application/repositories/users.repository';
 import { UserEntity } from '@/modules/users/domain/user.entity';
 
 import { PrismaService } from '@/shared/modules/prisma/prisma.service';
@@ -23,6 +26,28 @@ export class PrismaUsersRepository implements UsersRepository {
 		const records = await this.prismaService.user.findMany();
 		if (!records.length) return [];
 		return records.map((record) => new PrismaUserMapper().toDomain(record));
+	}
+
+	async findById(
+		id: string,
+		findOptions?: FindOptions,
+	): Promise<UserEntity | null> {
+		const record = await this.prismaService.user.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				...(findOptions?.relations?.subscription && {
+					subscription: true,
+				}),
+			},
+		});
+		if (!record) return null;
+		return new PrismaUserMapper().toDomain(record, {
+			relations: {
+				subscription: record.subscription,
+			},
+		});
 	}
 
 	async findByEmail(email: string): Promise<UserEntity | null> {

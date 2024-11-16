@@ -35,9 +35,13 @@ export type VendorSubscriptionType = {
 };
 
 export abstract class VendorSubscriptionsResource {
+	abstract cancel(
+		vendorSubscriptionId: string,
+	): Promise<Either<null, VendorSubscriptionType>>;
 	abstract create(
 		customerId: string,
 		priceId: string,
 		paymentMethodId: string,
 	): Promise<Either<null, VendorSubscriptionType>>;
+	abstract findById(id: string): Promise<Either<null, VendorSubscriptionType>>;
 }
