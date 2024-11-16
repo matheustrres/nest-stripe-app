@@ -2,16 +2,23 @@ import { Test } from '@nestjs/testing';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { EntityCuid } from '@/@core/domain/entity-cuid';
-import { left } from '@/@core/domain/logic/either';
+import { left, right } from '@/@core/domain/logic/either';
 
-import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
+import {
+	VendorPaymentsClient,
+	VendorSubscriptionStatusEnum,
+} from '@/modules/subscriptions/application/clients/payments/payments.client';
+import { InvalidSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-subscription-action.error';
 import { SubscriptionNotFoundError } from '@/modules/subscriptions/application/errors/subscription-not-found.error';
 import { SubscriptionsRepository } from '@/modules/subscriptions/application/repositories/subscriptions.repository';
 import { CancelSubscriptionUseCase } from '@/modules/subscriptions/application/use-cases/cancel-subscription.use-case';
+import { SubscriptionStatusEnum } from '@/modules/subscriptions/domain/enums/subscription-status';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
 import { SubscriptionEntityBuilder } from '#/__unit__/builders/subscriptions/subscription.builder';
+import { VendorSubscriptionBuilder } from '#/__unit__/builders/subscriptions/types/vendor-subscription.builder';
 import { CancelSubscriptionUseCaseBuilder } from '#/__unit__/builders/subscriptions/use-cases/cancel-subscription.builder';
+import { SubscriptionStatusValueObjectBuilder } from '#/__unit__/builders/subscriptions/value-objects/subscription-status.builder';
 import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(CancelSubscriptionUseCase.name, () => {
@@ -100,12 +107,9 @@ describe(CancelSubscriptionUseCase.name, () => {
 
 	it("should throw a SubscriptionNotFoundError if no vendor subscription is found with user's subscription {vendorSubscriptionId}", async () => {
 		const userBuilder = new UserEntityBuilder();
-		const subscriptionBuilder = new SubscriptionEntityBuilder();
-		let user = userBuilder.build();
-		subscriptionBuilder.setUserId(user.id);
-		const subscription = subscriptionBuilder.build();
-		userBuilder.setSubscription(subscription);
-		user = userBuilder.build();
+		const subscription = new SubscriptionEntityBuilder().build();
+
+		const user = userBuilder.setSubscription(subscription).build();
 
 		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
 		jest
@@ -121,6 +125,48 @@ describe(CancelSubscriptionUseCase.name, () => {
 		await expect(sut.exec(input)).rejects.toThrow(
 			SubscriptionNotFoundError.byCurrentVendorSubscription(
 				vendorSubscriptionId,
+			),
+		);
+		expect(usersRepository.findById).toHaveBeenCalledWith(user.id.value, {
+			relations: {
+				subscription: true,
+			},
+		});
+		expect(vendorPaymentsClient.subscriptions.findById).toHaveBeenCalledWith(
+			vendorSubscriptionId,
+		);
+	});
+
+	it("should throw a InvalidSubscriptionActionError if user's subscription is already canceled", async () => {
+		const vendorSubscription = new VendorSubscriptionBuilder()
+			.setStatus(VendorSubscriptionStatusEnum.Canceled)
+			.build();
+		const userBuilder = new UserEntityBuilder();
+		const subscription = new SubscriptionEntityBuilder()
+			.setStatus(
+				new SubscriptionStatusValueObjectBuilder()
+					.setStatus(SubscriptionStatusEnum.Canceled)
+					.build(),
+			)
+			.setVendorSubscriptionId(vendorSubscription.id)
+			.build();
+
+		const user = userBuilder.setSubscription(subscription).build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+		jest
+			.spyOn(vendorPaymentsClient.subscriptions, 'findById')
+			.mockResolvedValueOnce(right(vendorSubscription));
+
+		const input = new CancelSubscriptionUseCaseBuilder()
+			.setUserId(user.id)
+			.getInput();
+
+		const { vendorSubscriptionId } = subscription.getProps();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			new InvalidSubscriptionActionError(
+				'Only active subscriptions can be canceled',
 			),
 		);
 		expect(usersRepository.findById).toHaveBeenCalledWith(user.id.value, {
