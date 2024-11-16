@@ -178,4 +178,50 @@ describe(CancelSubscriptionUseCase.name, () => {
 			vendorSubscriptionId,
 		);
 	});
+
+	it("should throw a InvalidSubscriptionActionError if an error occurs when canceling user's subscription", async () => {
+		const vendorSubscription = new VendorSubscriptionBuilder()
+			.setStatus(VendorSubscriptionStatusEnum.Active)
+			.build();
+		const userBuilder = new UserEntityBuilder();
+		const subscription = new SubscriptionEntityBuilder()
+			.setStatus(
+				new SubscriptionStatusValueObjectBuilder()
+					.setStatus(SubscriptionStatusEnum.Active)
+					.build(),
+			)
+			.setVendorSubscriptionId(vendorSubscription.id)
+			.build();
+
+		const user = userBuilder.setSubscription(subscription).build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+		jest
+			.spyOn(vendorPaymentsClient.subscriptions, 'findById')
+			.mockResolvedValueOnce(right(vendorSubscription));
+		jest
+			.spyOn(vendorPaymentsClient.subscriptions, 'cancel')
+			.mockResolvedValueOnce(left(null));
+
+		const input = new CancelSubscriptionUseCaseBuilder()
+			.setUserId(user.id)
+			.getInput();
+
+		const { vendorSubscriptionId } = subscription.getProps();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			InvalidSubscriptionActionError.byCancelingSubscription(),
+		);
+		expect(usersRepository.findById).toHaveBeenCalledWith(user.id.value, {
+			relations: {
+				subscription: true,
+			},
+		});
+		expect(vendorPaymentsClient.subscriptions.findById).toHaveBeenCalledWith(
+			vendorSubscriptionId,
+		);
+		expect(vendorPaymentsClient.subscriptions.cancel).toHaveBeenCalledWith(
+			vendorSubscriptionId,
+		);
+	});
 });
