@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { EntityCuid } from '@/@core/domain/entity-cuid';
+import { left } from '@/@core/domain/logic/either';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
 import { SubscriptionNotFoundError } from '@/modules/subscriptions/application/errors/subscription-not-found.error';
@@ -9,6 +10,7 @@ import { SubscriptionsRepository } from '@/modules/subscriptions/application/rep
 import { CancelSubscriptionUseCase } from '@/modules/subscriptions/application/use-cases/cancel-subscription.use-case';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
+import { SubscriptionEntityBuilder } from '#/__unit__/builders/subscriptions/subscription.builder';
 import { CancelSubscriptionUseCaseBuilder } from '#/__unit__/builders/subscriptions/use-cases/cancel-subscription.builder';
 import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
@@ -94,5 +96,40 @@ describe(CancelSubscriptionUseCase.name, () => {
 				subscription: true,
 			},
 		});
+	});
+
+	it("should throw a SubscriptionNotFoundError if no vendor subscription is found with user's subscription {vendorSubscriptionId}", async () => {
+		const userBuilder = new UserEntityBuilder();
+		const subscriptionBuilder = new SubscriptionEntityBuilder();
+		let user = userBuilder.build();
+		subscriptionBuilder.setUserId(user.id);
+		const subscription = subscriptionBuilder.build();
+		userBuilder.setSubscription(subscription);
+		user = userBuilder.build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+		jest
+			.spyOn(vendorPaymentsClient.subscriptions, 'findById')
+			.mockResolvedValueOnce(left(null));
+
+		const input = new CancelSubscriptionUseCaseBuilder()
+			.setUserId(user.id)
+			.getInput();
+
+		const { vendorSubscriptionId } = subscription.getProps();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			SubscriptionNotFoundError.byCurrentVendorSubscription(
+				vendorSubscriptionId,
+			),
+		);
+		expect(usersRepository.findById).toHaveBeenCalledWith(user.id.value, {
+			relations: {
+				subscription: true,
+			},
+		});
+		expect(vendorPaymentsClient.subscriptions.findById).toHaveBeenCalledWith(
+			vendorSubscriptionId,
+		);
 	});
 });
