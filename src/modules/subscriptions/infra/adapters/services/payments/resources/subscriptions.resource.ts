@@ -16,6 +16,21 @@ export class StripeSubscriptionsResourceAdapter
 {
 	constructor(private readonly stripeClient: Stripe) {}
 
+	async cancel(
+		vendorSubscriptionId: string,
+	): Promise<Either<null, VendorSubscriptionType>> {
+		const stripeCanceledSubscription = await this.stripeClient.subscriptions
+			.cancel(vendorSubscriptionId, {
+				cancellation_details: {
+					comment: 'Customer request via /subscriptions/cancel',
+				},
+				prorate: false,
+			})
+			.catch(() => null);
+		if (!stripeCanceledSubscription) return left(null);
+		return right(this.#buildVendorSubscription(stripeCanceledSubscription));
+	}
+
 	async create(
 		customerId: string,
 		priceId: string,
@@ -31,6 +46,14 @@ export class StripeSubscriptionsResourceAdapter
 				],
 				default_payment_method: paymentMethodId,
 			})
+			.catch(() => null);
+		if (!stripeSubscription) return left(null);
+		return right(this.#buildVendorSubscription(stripeSubscription));
+	}
+
+	async findById(id: string): Promise<Either<null, VendorSubscriptionType>> {
+		const stripeSubscription = await this.stripeClient.subscriptions
+			.retrieve(id)
 			.catch(() => null);
 		if (!stripeSubscription) return left(null);
 		return right(this.#buildVendorSubscription(stripeSubscription));

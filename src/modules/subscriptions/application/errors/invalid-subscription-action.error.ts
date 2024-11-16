@@ -12,6 +12,13 @@ export class InvalidSubscriptionActionError extends AppError {
 		});
 	}
 
+	static byCancelingSubscription(): InvalidSubscriptionActionError {
+		return new InvalidSubscriptionActionError(
+			`An error was found while canceling subscription`,
+			HttpStatusCodeEnum.BAD_REQUEST,
+		);
+	}
+
 	static byCreatingCustomer(): InvalidSubscriptionActionError {
 		return new InvalidSubscriptionActionError(
 			'An error was found while creating customer',
