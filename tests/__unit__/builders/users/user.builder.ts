@@ -2,6 +2,7 @@ import { UserTokensValueObjectBuilder } from './value-objects/user-tokens.builde
 
 import { Role } from '@/@core/enums/user-role';
 
+import { SubscriptionEntity } from '@/modules/subscriptions/domain/subscription.entity';
 import {
 	UserEntity,
 	UserEntityProps,
@@ -46,6 +47,11 @@ export class UserEntityBuilder {
 		this.#props.tokens = new UserTokensValueObjectBuilder()
 			.setAmount(tokens)
 			.build();
+		return this;
+	}
+
+	setSubscription(subscription: SubscriptionEntity): this {
+		this.#props.subscription = subscription;
 		return this;
 	}
 

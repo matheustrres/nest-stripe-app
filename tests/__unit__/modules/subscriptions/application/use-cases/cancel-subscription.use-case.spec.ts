@@ -4,11 +4,13 @@ import { InvalidCredentialsError } from '@/@core/application/errors/invalid-cred
 import { EntityCuid } from '@/@core/domain/entity-cuid';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
+import { SubscriptionNotFoundError } from '@/modules/subscriptions/application/errors/subscription-not-found.error';
 import { SubscriptionsRepository } from '@/modules/subscriptions/application/repositories/subscriptions.repository';
 import { CancelSubscriptionUseCase } from '@/modules/subscriptions/application/use-cases/cancel-subscription.use-case';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
 import { CancelSubscriptionUseCaseBuilder } from '#/__unit__/builders/subscriptions/use-cases/cancel-subscription.builder';
+import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(CancelSubscriptionUseCase.name, () => {
 	let usersRepository: UsersRepository;
@@ -69,6 +71,25 @@ describe(CancelSubscriptionUseCase.name, () => {
 			new InvalidCredentialsError(),
 		);
 		expect(usersRepository.findById).toHaveBeenCalledWith(userId.value, {
+			relations: {
+				subscription: true,
+			},
+		});
+	});
+
+	it('should throw a SubscriptionNotFoundError if user has no subscription', async () => {
+		const user = new UserEntityBuilder().build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+
+		const input = new CancelSubscriptionUseCaseBuilder()
+			.setUserId(user.id)
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			SubscriptionNotFoundError.byUser(user.id.value),
+		);
+		expect(usersRepository.findById).toHaveBeenCalledWith(user.id.value, {
 			relations: {
 				subscription: true,
 			},
