@@ -10,7 +10,7 @@ import { UserTokensValueObject } from '@/modules/users/domain/value-objects/toke
 
 type MappingOptions = {
 	relations?: {
-		subscription?: Subscription;
+		subscription?: Subscription | null;
 	};
 };
 
