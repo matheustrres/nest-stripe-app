@@ -9,7 +9,7 @@ import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.ser
 import { CoreTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
-import { InvalidVendorSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-vendor-subscription-action.error';
+import { InvalidSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-subscription-action.error';
 import { SubscriptionAlreadyExistsError } from '@/modules/subscriptions/application/errors/subscription-already-exists.error';
 import { SubscriptionsRepository } from '@/modules/subscriptions/application/repositories/subscriptions.repository';
 import { CreateSubscriptionUseCase } from '@/modules/subscriptions/application/use-cases/create-subscription.use-case';
@@ -133,7 +133,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		);
 	});
 
-	it('should throw a InvalidVendorSubscriptionActionError if no vendor product is found with given {productId}', async () => {
+	it('should throw a InvalidSubscriptionActionError if no vendor product is found with given {productId}', async () => {
 		const user = new UserEntityBuilder().build();
 
 		jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
@@ -152,7 +152,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.getInput();
 
 		await expect(sut.exec(input)).rejects.toThrow(
-			InvalidVendorSubscriptionActionError.productNotFound(productId),
+			InvalidSubscriptionActionError.productNotFound(productId),
 		);
 		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
@@ -163,7 +163,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		);
 	});
 
-	it('should throw a InvalidVendorSubscriptionActionError if no vendor payment method is found with given {paymentMethodId}', async () => {
+	it('should throw a InvalidSubscriptionActionError if no vendor payment method is found with given {paymentMethodId}', async () => {
 		const user = new UserEntityBuilder().build();
 		const vendorPlan = new VendorPlanBuilder().build();
 
@@ -188,9 +188,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.getInput();
 
 		await expect(sut.exec(input)).rejects.toThrow(
-			InvalidVendorSubscriptionActionError.paymentMethodNotFound(
-				paymentMethodId,
-			),
+			InvalidSubscriptionActionError.paymentMethodNotFound(paymentMethodId),
 		);
 		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
@@ -204,7 +202,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		);
 	});
 
-	it('should throw a InvalidVendorSubscriptionActionError if an error occurs when creating a vendor customer', async () => {
+	it('should throw a InvalidSubscriptionActionError if an error occurs when creating a vendor customer', async () => {
 		const user = new UserEntityBuilder().build();
 		const vendorPlan = new VendorPlanBuilder().build();
 		const vendorPM = new VendorPaymentMethodBuilder().build();
@@ -235,7 +233,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		const { email } = user.getProps();
 
 		await expect(sut.exec(input)).rejects.toThrow(
-			InvalidVendorSubscriptionActionError.byCreatingCustomer(),
+			InvalidSubscriptionActionError.byCreatingCustomer(),
 		);
 		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
@@ -253,7 +251,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		);
 	});
 
-	it('should throw a InvalidVendorSubscriptionActionError if an error occurs when creating a subscription and delete the previous vendor customer created', async () => {
+	it('should throw a InvalidSubscriptionActionError if an error occurs when creating a subscription and delete the previous vendor customer created', async () => {
 		const user = new UserEntityBuilder().build();
 		const vendorPlan = new VendorPlanBuilder().build();
 		const vendorPM = new VendorPaymentMethodBuilder().build();
@@ -289,7 +287,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.getInput();
 
 		await expect(sut.exec(input)).rejects.toThrow(
-			InvalidVendorSubscriptionActionError.byCreatingSubscription(),
+			InvalidSubscriptionActionError.byCreatingSubscription(),
 		);
 		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(

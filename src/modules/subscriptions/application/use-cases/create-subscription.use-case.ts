@@ -5,7 +5,7 @@ import { UseCase } from '@/@core/application/use-case';
 import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
-import { InvalidVendorSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-vendor-subscription-action.error';
+import { InvalidSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-subscription-action.error';
 import { SubscriptionAlreadyExistsError } from '@/modules/subscriptions/application/errors/subscription-already-exists.error';
 import { SubscriptionsRepository } from '@/modules/subscriptions/application/repositories/subscriptions.repository';
 import { SubscriptionStatusEnum } from '@/modules/subscriptions/domain/enums/subscription-status';
@@ -52,13 +52,13 @@ export class CreateSubscriptionUseCase
 		const vendorProductFindingResult =
 			this.corePlansDomainService.getPlanByProductId(productId);
 		if (vendorProductFindingResult.isLeft()) {
-			throw InvalidVendorSubscriptionActionError.productNotFound(productId);
+			throw InvalidSubscriptionActionError.productNotFound(productId);
 		}
 
 		const vendorPaymentMethodFindingResult =
 			await this.vendorPaymentsClient.paymentMethods.findById(paymentMethodId);
 		if (vendorPaymentMethodFindingResult.isLeft()) {
-			throw InvalidVendorSubscriptionActionError.paymentMethodNotFound(
+			throw InvalidSubscriptionActionError.paymentMethodNotFound(
 				paymentMethodId,
 			);
 		}
@@ -72,7 +72,7 @@ export class CreateSubscriptionUseCase
 				vendorPaymentMethod.id,
 			);
 		if (vendorCustomerCreationResult.isLeft())
-			throw InvalidVendorSubscriptionActionError.byCreatingCustomer();
+			throw InvalidSubscriptionActionError.byCreatingCustomer();
 
 		const vendorCustomer = vendorCustomerCreationResult.value;
 		const vendorProduct = vendorProductFindingResult.value;
@@ -85,7 +85,7 @@ export class CreateSubscriptionUseCase
 			);
 		if (vendorSubscriptionCreationResult.isLeft()) {
 			await this.vendorPaymentsClient.customers.delete(vendorCustomer.id);
-			throw InvalidVendorSubscriptionActionError.byCreatingSubscription();
+			throw InvalidSubscriptionActionError.byCreatingSubscription();
 		}
 
 		const vendorSubscription = vendorSubscriptionCreationResult.value;
