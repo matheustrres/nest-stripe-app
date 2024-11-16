@@ -138,7 +138,7 @@ describe(CancelSubscriptionUseCase.name, () => {
 	});
 
 	it("should throw a InvalidSubscriptionActionError if user's subscription is already canceled", async () => {
-		const vendorSubscription = new VendorSubscriptionBuilder()
+		const vendorActiveSubscription = new VendorSubscriptionBuilder()
 			.setStatus(VendorSubscriptionStatusEnum.Canceled)
 			.build();
 		const userBuilder = new UserEntityBuilder();
@@ -148,7 +148,7 @@ describe(CancelSubscriptionUseCase.name, () => {
 					.setStatus(SubscriptionStatusEnum.Canceled)
 					.build(),
 			)
-			.setVendorSubscriptionId(vendorSubscription.id)
+			.setVendorSubscriptionId(vendorActiveSubscription.id)
 			.build();
 
 		const user = userBuilder.setSubscription(subscription).build();
@@ -156,7 +156,7 @@ describe(CancelSubscriptionUseCase.name, () => {
 		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
 		jest
 			.spyOn(vendorPaymentsClient.subscriptions, 'findById')
-			.mockResolvedValueOnce(right(vendorSubscription));
+			.mockResolvedValueOnce(right(vendorActiveSubscription));
 
 		const input = new CancelSubscriptionUseCaseBuilder()
 			.setUserId(user.id)
@@ -180,7 +180,7 @@ describe(CancelSubscriptionUseCase.name, () => {
 	});
 
 	it("should throw a InvalidSubscriptionActionError if an error occurs when canceling user's subscription", async () => {
-		const vendorSubscription = new VendorSubscriptionBuilder()
+		const vendorActiveSubscription = new VendorSubscriptionBuilder()
 			.setStatus(VendorSubscriptionStatusEnum.Active)
 			.build();
 		const userBuilder = new UserEntityBuilder();
@@ -190,7 +190,7 @@ describe(CancelSubscriptionUseCase.name, () => {
 					.setStatus(SubscriptionStatusEnum.Active)
 					.build(),
 			)
-			.setVendorSubscriptionId(vendorSubscription.id)
+			.setVendorSubscriptionId(vendorActiveSubscription.id)
 			.build();
 
 		const user = userBuilder.setSubscription(subscription).build();
@@ -198,7 +198,7 @@ describe(CancelSubscriptionUseCase.name, () => {
 		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
 		jest
 			.spyOn(vendorPaymentsClient.subscriptions, 'findById')
-			.mockResolvedValueOnce(right(vendorSubscription));
+			.mockResolvedValueOnce(right(vendorActiveSubscription));
 		jest
 			.spyOn(vendorPaymentsClient.subscriptions, 'cancel')
 			.mockResolvedValueOnce(left(null));
@@ -223,5 +223,64 @@ describe(CancelSubscriptionUseCase.name, () => {
 		expect(vendorPaymentsClient.subscriptions.cancel).toHaveBeenCalledWith(
 			vendorSubscriptionId,
 		);
+	});
+
+	it("should cancel user's subscription", async () => {
+		const vendorActiveSubscription = new VendorSubscriptionBuilder()
+			.setStatus(VendorSubscriptionStatusEnum.Active)
+			.build();
+		const userBuilder = new UserEntityBuilder();
+		const subscription = new SubscriptionEntityBuilder()
+			.setStatus(
+				new SubscriptionStatusValueObjectBuilder()
+					.setStatus(SubscriptionStatusEnum.Active)
+					.build(),
+			)
+			.setVendorSubscriptionId(vendorActiveSubscription.id)
+			.build();
+		const user = userBuilder.setSubscription(subscription).build();
+		const vendorCanceledSubscription = new VendorSubscriptionBuilder()
+			.setStatus(VendorSubscriptionStatusEnum.Canceled)
+			.build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+		jest
+			.spyOn(vendorPaymentsClient.subscriptions, 'findById')
+			.mockResolvedValueOnce(right(vendorActiveSubscription));
+		jest
+			.spyOn(vendorPaymentsClient.subscriptions, 'cancel')
+			.mockResolvedValueOnce(right(vendorCanceledSubscription));
+		jest.spyOn(subscriptionsRepository, 'upsert');
+
+		const input = new CancelSubscriptionUseCaseBuilder()
+			.setUserId(user.id)
+			.getInput();
+
+		const { vendorSubscriptionId } = subscription.getProps();
+
+		const { subscription: canceledSubscription } = await sut.exec(input);
+		const {
+			status: canceledSubscriptionStatus,
+			userId: canceledSubscriptionUserId,
+			vendorSubscriptionId: canceledSubscriptionVendorSubscriptionId,
+		} = canceledSubscription.getProps();
+
+		expect(canceledSubscriptionStatus.isActive()).toBe(false);
+		expect(canceledSubscriptionUserId).toStrictEqual(user.id);
+		expect(canceledSubscriptionVendorSubscriptionId).toStrictEqual(
+			vendorActiveSubscription.id,
+		);
+		expect(usersRepository.findById).toHaveBeenCalledWith(user.id.value, {
+			relations: {
+				subscription: true,
+			},
+		});
+		expect(vendorPaymentsClient.subscriptions.findById).toHaveBeenCalledWith(
+			vendorSubscriptionId,
+		);
+		expect(vendorPaymentsClient.subscriptions.cancel).toHaveBeenCalledWith(
+			vendorSubscriptionId,
+		);
+		expect(subscriptionsRepository.upsert).toHaveBeenCalled();
 	});
 });
