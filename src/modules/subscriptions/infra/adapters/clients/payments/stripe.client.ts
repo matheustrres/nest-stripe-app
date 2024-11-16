@@ -14,7 +14,7 @@ import {
 } from '@/modules/subscriptions/application/clients/payments/payments.client';
 
 @Injectable()
-export class StripePaymentsClientAdapter implements VendorPaymentsClient {
+export class StripeVendorPaymentsClientAdapter implements VendorPaymentsClient {
 	readonly #stripeClient: Stripe;
 
 	customers: VendorCustomersResource;

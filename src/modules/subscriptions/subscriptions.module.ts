@@ -6,7 +6,7 @@ import { VendorPaymentsClient } from './application/clients/payments/payments.cl
 import { SubscriptionsRepository } from './application/repositories/subscriptions.repository';
 import { CancelSubscriptionUseCase } from './application/use-cases/cancel-subscription.use-case';
 import { CreateSubscriptionUseCase } from './application/use-cases/create-subscription.use-case';
-import { StripePaymentsClientAdapter } from './infra/adapters/services/payments/stripe.client';
+import { StripeVendorPaymentsClientAdapter } from './infra/adapters/clients/payments/stripe.client';
 import { PrismaSubscriptionsRepository } from './infra/drivers/database/subscriptions.repository';
 import { SubscriptionsController } from './infra/drivers/http/rest/subscriptions.controller';
 
@@ -46,7 +46,7 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 		},
 		{
 			provide: VendorPaymentsClient,
-			useClass: StripePaymentsClientAdapter,
+			useClass: StripeVendorPaymentsClientAdapter,
 		},
 		CancelSubscriptionUseCase,
 		CreateSubscriptionUseCase,
