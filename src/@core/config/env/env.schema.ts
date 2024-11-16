@@ -52,4 +52,9 @@ export class EnvSchema {
 	@IsNotEmpty()
 	@Matches(/^sk_test_.*$/)
 	STRIPE_TEST_KEY?: string;
+
+	@IsString()
+	@IsNotEmpty()
+	@Matches(/^re_.*$/)
+	RESEND_API_KEY?: string;
 }
