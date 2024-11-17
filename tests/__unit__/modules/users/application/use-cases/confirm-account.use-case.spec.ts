@@ -81,4 +81,32 @@ describe(ConfirmUserAccountUseCase.name, () => {
 			input.code,
 		);
 	});
+
+	it('should confirm user account', async () => {
+		const user = new UserEntityBuilder().build();
+
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(user);
+		jest
+			.spyOn(alphanumericCodeService, 'validateCode')
+			.mockResolvedValueOnce(true);
+
+		const { email } = user.getProps();
+
+		const mockedAlphanumericCode = 'EF2G1';
+		const input = new ConfirmUserAccountUseCaseBuilder()
+			.setEmail(email)
+			.setAlphanumericCode(mockedAlphanumericCode)
+			.getInput();
+
+		await sut.exec(input);
+
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(email);
+		expect(alphanumericCodeService.validateCode).toHaveBeenCalledWith(
+			SignUpContextKey,
+			email,
+			mockedAlphanumericCode,
+		);
+		expect(usersRepository.upsert).toHaveBeenCalledWith(user);
+		expect(user.getProps().isAccountConfirmed).toBe(true);
+	});
 });
