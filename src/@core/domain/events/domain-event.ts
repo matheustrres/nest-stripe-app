@@ -1,27 +1,16 @@
-import { EntityCuid } from '../entity-cuid';
+import { DomainEventsEnum } from '@/@core/enums/domain-events';
 
-export abstract class DomainEvent<T = unknown> {
-	readonly #id: EntityCuid;
-	readonly #createdAt: Date;
-	readonly #data: T;
+export class DomainEvent<T = unknown> {
+	readonly data: T;
+	readonly name: DomainEventsEnum;
+	readonly createdAt = new Date();
 
-	constructor(data: T) {
-		this.#id = new EntityCuid();
-		this.#createdAt = new Date();
-		this.#data = data;
-	}
-
-	abstract getName(): string;
-
-	getId(): EntityCuid {
-		return this.#id;
+	constructor(data: T, name: DomainEventsEnum) {
+		this.data = data;
+		this.name = name;
 	}
 
 	getCreatedAt(): Date {
-		return this.#createdAt;
-	}
-
-	getData(): T {
-		return this.#data;
+		return this.createdAt;
 	}
 }

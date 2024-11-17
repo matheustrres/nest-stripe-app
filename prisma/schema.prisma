@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  name         String
-  email        String        @unique
-  password     String
-  role         String
-  tokens       Float         @default(0)
-  subscription Subscription?
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  id                 String        @id @default(cuid())
+  name               String
+  email              String        @unique
+  isAccountConfirmed Boolean       @default(false)
+  password           String
+  role               String
+  tokens             Float         @default(0)
+  subscription       Subscription?
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
 
   @@index([email])
   @@map("users")
