@@ -7,6 +7,7 @@
 		"outDir": "./dist",
 		"noUnusedLocals": true,
 		"paths": {
+			"$/*": ["./assets/*"],
 			"@/*": ["./src/*"],
 			"#/*": ["tests/*"]
 		},
@@ -17,6 +18,7 @@
 		"noImplicitThis": true,
 		"resolveJsonModule": true,
 		"useUnknownInCatchVariables": true,
+		"allowJs": true,
 		"allowSyntheticDefaultImports": true,
 		"noUncheckedIndexedAccess": true
 	},
