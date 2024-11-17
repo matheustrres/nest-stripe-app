@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker';
-
 import { VendorCustomerBuilder } from './vendor-customer.builder';
 
 import {
@@ -7,11 +5,13 @@ import {
 	VendorSubscriptionType,
 } from '@/modules/subscriptions/application/clients/payments/payments.client';
 
+import { FakerLib } from '#/__unit__/!libs/faker';
+
 export class VendorSubscriptionBuilder {
 	#props: VendorSubscriptionType = {
-		id: faker.string.ulid(),
+		id: FakerLib.string.ulid(),
 		cancelAt: Date.now(),
-		cancelAtPeriodEnd: faker.datatype.boolean(),
+		cancelAtPeriodEnd: FakerLib.datatype.boolean(),
 		currency: 'US',
 		currentPeriodEnd: Date.now(),
 		currentPeriodStart: Date.now(),

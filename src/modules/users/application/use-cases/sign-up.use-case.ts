@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { CodeGenerationService } from '@/@core/application/services/code-gen.service';
+import { AlphanumericCodeService } from '@/@core/application/services/alpha-numeric-code.service';
 import { HashingService } from '@/@core/application/services/hashing.service';
 import { UseCase } from '@/@core/application/use-case';
 import { EventEmitter } from '@/@core/domain/events/emitter/event-emitter';
@@ -30,7 +30,7 @@ export class SignUpUseCase
 		private readonly usersRepository: UsersRepository,
 		private readonly hashingService: HashingService,
 		private readonly eventEmitter: EventEmitter,
-		private readonly codeGenService: CodeGenerationService,
+		private readonly alphanumericCodeService: AlphanumericCodeService,
 	) {}
 
 	async exec({
@@ -54,7 +54,7 @@ export class SignUpUseCase
 
 		const userProps = user.getProps();
 
-		const authCode = await this.codeGenService.genAlphanumericCode(5);
+		const authCode = await this.alphanumericCodeService.genCode(5);
 
 		this.eventEmitter.emit(
 			new UserAccountCreatedDomainEvent({

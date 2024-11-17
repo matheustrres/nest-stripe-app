@@ -3,6 +3,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CachingService } from '@/@core/application/services/caching.service';
 import { DateService } from '@/@core/application/services/date.service';
 import { MailingService } from '@/@core/application/services/mailing.service';
+import { SignUpContextKey } from '@/@core/domain/constants/code-context';
 import { UserDomainEventsEnum } from '@/@core/enums/domain-events';
 
 import { UserAccountCreatedDomainEvent } from '@/modules/users/domain/events/account-created.event';
@@ -36,7 +37,7 @@ export class UserAccountCreatedDomainEventListener {
 				this.dateService.toUnixTimestamp(codeExpirationDate);
 
 			await this.cachingService.set({
-				key: `sign_up:${email}`,
+				key: `${SignUpContextKey}:${email}`,
 				value: code,
 				ttl: codeExpirationDateUnixTimestamp,
 			});

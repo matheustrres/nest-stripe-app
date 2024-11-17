@@ -24,7 +24,10 @@ type OptionaUserEntityConstructorProps = Optional<
 >;
 type UserEntityConstructorProps =
 	CreateEntityProps<OptionaUserEntityConstructorProps>;
-type UpdateUserEntityProps = Partial<UserEntityProps>;
+type UpdateUserEntityProps = Omit<
+	Partial<UserEntityProps>,
+	'isAccountConfirmed'
+>;
 
 export class UserEntity extends Entity<UserEntityProps> {
 	private constructor({ id, props, createdAt }: UserEntityConstructorProps) {
@@ -58,5 +61,9 @@ export class UserEntity extends Entity<UserEntityProps> {
 			...this.props,
 			...props,
 		};
+	}
+
+	confirmAccount(): void {
+		this.props.isAccountConfirmed = true;
 	}
 }

@@ -8,4 +8,8 @@ export class InvalidCredentialsError extends AppError {
 			message,
 		});
 	}
+
+	static byValidationCode() {
+		return new InvalidCredentialsError('Invalid or expired validation code.');
+	}
 }
