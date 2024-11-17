@@ -6,6 +6,7 @@ import { SignInUseCase } from './application/use-cases/sign-in.use-case';
 import { SignUpUseCase } from './application/use-cases/sign-up.use-case';
 import { PrismaUsersRepository } from './infra/drivers/database/users.repository';
 import { UsersController } from './infra/drivers/http/rest/users.controller';
+import { UserAccountCreatedDomainEventListener } from './infra/events/listeners/account-created.listener';
 
 import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 
@@ -18,6 +19,7 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 		},
 		SignInUseCase,
 		SignUpUseCase,
+		UserAccountCreatedDomainEventListener,
 	],
 	controllers: [UsersController],
 	exports: [UsersRepository],

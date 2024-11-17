@@ -1,8 +1,18 @@
 {
-  "$schema": "https://json.schemastore.org/nest-cli",
-  "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
-  "compilerOptions": {
-    "deleteOutDir": true
-  }
+	"$schema": "https://json.schemastore.org/nest-cli",
+	"collection": "@nestjs/schematics",
+	"sourceRoot": "src",
+	"compilerOptions": {
+		"builder": "swc",
+		"deleteOutDir": true,
+		"manualRestart": true,
+		"typeCheck": true,
+		"tsConfigPath": "tsconfig.build.json",
+		"assets": [
+			{
+				"include": "../assets/templates",
+				"watchAssets": false
+			}
+		]
+	}
 }

@@ -17,6 +17,7 @@ export class UserEntityBuilder {
 		password: FakerLib.internet.password(),
 		role: Role.User,
 		tokens: new UserTokensValueObjectBuilder().build(),
+		isAccountConfirmed: false,
 	};
 
 	getProps(): UserEntityProps {
@@ -52,6 +53,11 @@ export class UserEntityBuilder {
 
 	setSubscription(subscription: SubscriptionEntity): this {
 		this.#props.subscription = subscription;
+		return this;
+	}
+
+	confirmAccount(): this {
+		this.#props.isAccountConfirmed = true;
 		return this;
 	}
 

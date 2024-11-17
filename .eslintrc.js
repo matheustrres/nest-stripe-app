@@ -32,7 +32,8 @@ module.exports = {
           "/^@/@core/",
           "/^@/modules/",
           "/^@/shared/",
-          "/^#/"
+          "/^#/",
+          "/^$/"
         ],
         "alphabetize": {
           "order": "asc",

@@ -14,12 +14,13 @@ export type UserEntityProps = {
 	password: string;
 	role: Role;
 	tokens: UserTokensValueObject;
+	isAccountConfirmed: boolean;
 	subscription?: SubscriptionEntity;
 };
 
 type OptionaUserEntityConstructorProps = Optional<
 	UserEntityProps,
-	'role' | 'tokens'
+	'role' | 'tokens' | 'isAccountConfirmed'
 >;
 type UserEntityConstructorProps =
 	CreateEntityProps<OptionaUserEntityConstructorProps>;
@@ -34,6 +35,7 @@ export class UserEntity extends Entity<UserEntityProps> {
 				role: props.role ?? Role.User,
 				tokens:
 					props.tokens ?? new UserTokensValueObject(userDefaultTokensAmount),
+				isAccountConfirmed: props.isAccountConfirmed ?? false,
 			},
 			createdAt,
 		});
