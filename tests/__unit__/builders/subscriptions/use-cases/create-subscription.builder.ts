@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker';
-
 import { EntityCuid } from '@/@core/domain/entity-cuid';
 
 import {
@@ -7,12 +5,13 @@ import {
 	CreateSubscriptionUseCaseOutput,
 } from '@/modules/subscriptions/application/use-cases/create-subscription.use-case';
 
+import { FakerLib } from '#/__unit__/!libs/faker';
 import { SubscriptionEntityBuilder } from '#/__unit__/builders/subscriptions/subscription.builder';
 
 export class CreateSubscriptionUseCaseBuilder {
 	#input: CreateSubscriptionUseCaseInput = {
-		paymentMethodId: faker.string.ulid(),
-		productId: faker.string.ulid(),
+		paymentMethodId: FakerLib.string.ulid(),
+		productId: FakerLib.string.ulid(),
 		userId: new EntityCuid().value,
 	};
 

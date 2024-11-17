@@ -1,13 +1,13 @@
-import { faker } from '@faker-js/faker';
-
 import { VendorPaymentMethodBuilder } from './vendor-payment-method.builder';
 
 import { VendorCustomerType } from '@/modules/subscriptions/application/clients/payments/payments.client';
 
+import { FakerLib } from '#/__unit__/!libs/faker';
+
 export class VendorCustomerBuilder {
 	#props: VendorCustomerType = {
-		id: faker.string.ulid(),
-		email: faker.internet.email(),
+		id: FakerLib.string.ulid(),
+		email: FakerLib.internet.email(),
 		defaultPaymentMethodId: new VendorPaymentMethodBuilder().getProps().id,
 		created: Date.now(),
 	};

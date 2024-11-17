@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker';
-
 import {
 	VendorCardCVCTypeEnum,
 	VendorCardFundingTypeEnum,
@@ -7,9 +5,11 @@ import {
 	VendorPaymentMethodTypeEnum,
 } from '@/modules/subscriptions/application/clients/payments/payments.client';
 
+import { FakerLib } from '#/__unit__/!libs/faker';
+
 export class VendorPaymentMethodBuilder {
 	#props: VendorPaymentMethodType = {
-		id: faker.string.ulid(),
+		id: FakerLib.string.ulid(),
 		created: Date.now(),
 		type: VendorPaymentMethodTypeEnum.Card,
 		card: {
@@ -21,7 +21,7 @@ export class VendorPaymentMethodBuilder {
 			expYear: 2024,
 			last4digits: '1234',
 		},
-		customer: faker.string.ulid(),
+		customer: FakerLib.string.ulid(),
 	};
 
 	getProps(): VendorPaymentMethodType {
