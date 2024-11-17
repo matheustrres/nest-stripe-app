@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 
-import { CodeGenerationService } from '@/@core/application/services/code-gen.service';
+import { AlphanumericCodeService } from '@/@core/application/services/alpha-numeric-code.service';
 import { HashingService } from '@/@core/application/services/hashing.service';
 import { EventEmitter } from '@/@core/domain/events/emitter/event-emitter';
 
@@ -16,7 +16,7 @@ describe(SignUpUseCase.name, () => {
 	let usersRepository: UsersRepository;
 	let hashingService: HashingService;
 	let eventEmitter: EventEmitter;
-	let codeGenService: CodeGenerationService;
+	let alphanumericCodeService: AlphanumericCodeService;
 	let sut: SignUpUseCase;
 
 	beforeEach(async () => {
@@ -42,9 +42,9 @@ describe(SignUpUseCase.name, () => {
 					},
 				},
 				{
-					provide: CodeGenerationService,
+					provide: AlphanumericCodeService,
 					useValue: {
-						genAlphanumericCode: jest.fn(),
+						genCode: jest.fn(),
 					},
 				},
 				SignUpUseCase,
@@ -54,7 +54,7 @@ describe(SignUpUseCase.name, () => {
 		usersRepository = moduleRef.get(UsersRepository);
 		hashingService = moduleRef.get(HashingService);
 		eventEmitter = moduleRef.get(EventEmitter);
-		codeGenService = moduleRef.get(CodeGenerationService);
+		alphanumericCodeService = moduleRef.get(AlphanumericCodeService);
 		sut = moduleRef.get(SignUpUseCase);
 	});
 
@@ -63,7 +63,7 @@ describe(SignUpUseCase.name, () => {
 		expect(usersRepository.upsert).toBeDefined();
 		expect(hashingService.hash).toBeDefined();
 		expect(eventEmitter.emit).toBeDefined();
-		expect(codeGenService.genAlphanumericCode).toBeDefined();
+		expect(alphanumericCodeService.genCode).toBeDefined();
 		expect(sut).toBeDefined();
 	});
 
@@ -95,7 +95,7 @@ describe(SignUpUseCase.name, () => {
 		jest.spyOn(hashingService, 'hash').mockResolvedValueOnce(hashedPassword);
 		jest.spyOn(usersRepository, 'upsert');
 		jest
-			.spyOn(codeGenService, 'genAlphanumericCode')
+			.spyOn(alphanumericCodeService, 'genCode')
 			.mockResolvedValueOnce(mockedAlphanumericCode);
 
 		const userProps = user.getProps();
@@ -115,7 +115,7 @@ describe(SignUpUseCase.name, () => {
 		expect(newUserProps.name).toEqual(userProps.name);
 		expect(newUserProps.email).toEqual(userProps.email);
 		expect(newUserProps.password).toBe(hashedPassword);
-		expect(codeGenService.genAlphanumericCode).toHaveBeenCalledWith(5);
+		expect(alphanumericCodeService.genCode).toHaveBeenCalledWith(5);
 		expect(eventEmitter.emit).toHaveBeenCalledWith(
 			expect.any(UserAccountCreatedDomainEvent),
 		);
