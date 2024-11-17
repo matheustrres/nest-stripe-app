@@ -2,6 +2,7 @@ import { AdaptersModule } from '@/infra/adapters/adapters.module';
 import { Module } from '@nestjs/common';
 
 import { UsersRepository } from './application/repositories/users.repository';
+import { ConfirmUserAccountUseCase } from './application/use-cases/confirm-account.use-case';
 import { SignInUseCase } from './application/use-cases/sign-in.use-case';
 import { SignUpUseCase } from './application/use-cases/sign-up.use-case';
 import { PrismaUsersRepository } from './infra/drivers/database/users.repository';
@@ -17,6 +18,7 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 			provide: UsersRepository,
 			useClass: PrismaUsersRepository,
 		},
+		ConfirmUserAccountUseCase,
 		SignInUseCase,
 		SignUpUseCase,
 		UserAccountCreatedDomainEventListener,
