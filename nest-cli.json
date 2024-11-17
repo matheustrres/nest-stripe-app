@@ -3,11 +3,15 @@
 	"collection": "@nestjs/schematics",
 	"sourceRoot": "src",
 	"compilerOptions": {
+		"builder": "swc",
 		"deleteOutDir": true,
+		"manualRestart": true,
+		"typeCheck": true,
+		"tsConfigPath": "tsconfig.build.json",
 		"assets": [
 			{
-				"include": "assets/**/*.js",
-				"watchAssets": true
+				"include": "../assets/templates",
+				"watchAssets": false
 			}
 		]
 	}
