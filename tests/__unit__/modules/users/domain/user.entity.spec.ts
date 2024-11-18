@@ -1,4 +1,4 @@
-import { userDefaultTokensAmount } from '@/@core/domain/constants/user-tokens';
+import { UserFreeTrialTokens } from '@/@core/domain/constants/tokens-per-plan';
 import { Role } from '@/@core/enums/user-role';
 
 import { UserEntity } from '@/modules/users/domain/user.entity';
@@ -8,7 +8,7 @@ import { UserTokensValueObjectBuilder } from '#/__unit__/builders/users/value-ob
 describe(UserEntity.name, () => {
 	it('should create a new user', () => {
 		const userTokens = new UserTokensValueObjectBuilder()
-			.setAmount(userDefaultTokensAmount)
+			.setAmount(UserFreeTrialTokens)
 			.build();
 		const user = UserEntity.createNew({
 			name: 'John Doe',
@@ -21,7 +21,7 @@ describe(UserEntity.name, () => {
 		expect(name).toBe('John Doe');
 		expect(email).toBe('john.doe@gmail.com');
 		expect(role).toEqual(Role.User);
-		expect(tokens.amount).toEqual(userDefaultTokensAmount);
+		expect(tokens.amount).toEqual(UserFreeTrialTokens);
 	});
 
 	it('should restore a user', () => {

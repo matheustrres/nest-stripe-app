@@ -1,6 +1,6 @@
 import { UserTokensValueObject } from './value-objects/tokens';
 
-import { userDefaultTokensAmount } from '@/@core/domain/constants/user-tokens';
+import { UserFreeTrialTokens } from '@/@core/domain/constants/tokens-per-plan';
 import { CreateEntityProps, Entity } from '@/@core/domain/entity';
 import { EntityCuid } from '@/@core/domain/entity-cuid';
 import { Role } from '@/@core/enums/user-role';
@@ -36,8 +36,7 @@ export class UserEntity extends Entity<UserEntityProps> {
 			props: {
 				...props,
 				role: props.role ?? Role.User,
-				tokens:
-					props.tokens ?? new UserTokensValueObject(userDefaultTokensAmount),
+				tokens: props.tokens ?? new UserTokensValueObject(UserFreeTrialTokens),
 				isAccountConfirmed: props.isAccountConfirmed ?? false,
 			},
 			createdAt,

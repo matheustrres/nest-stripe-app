@@ -1,4 +1,4 @@
-import { userDefaultTokensAmount } from '@/@core/domain/constants/user-tokens';
+import { UserFreeTrialTokens } from '@/@core/domain/constants/tokens-per-plan';
 
 import { UserTokensError } from '@/modules/users/domain/errors/user-tokens.error';
 import { UserTokensValueObject } from '@/modules/users/domain/value-objects/tokens';
@@ -16,9 +16,9 @@ describe(UserTokensValueObject.name, () => {
 
 	it('should create a new value object', () => {
 		const tokens = new UserTokensValueObjectBuilder()
-			.setAmount(userDefaultTokensAmount)
+			.setAmount(UserFreeTrialTokens)
 			.build();
-		expect(tokens.amount).toEqual(1_000);
+		expect(tokens.amount).toEqual(500);
 	});
 
 	describe('when adding tokens', () => {
@@ -31,10 +31,10 @@ describe(UserTokensValueObject.name, () => {
 
 		it('should sum up tokens', () => {
 			const tokens = new UserTokensValueObjectBuilder()
-				.setAmount(userDefaultTokensAmount)
+				.setAmount(UserFreeTrialTokens)
 				.build();
 			tokens.add(3_000);
-			expect(tokens.amount).toEqual(4_000);
+			expect(tokens.amount).toEqual(3_500);
 		});
 	});
 

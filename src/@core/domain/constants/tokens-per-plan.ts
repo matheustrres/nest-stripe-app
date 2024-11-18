@@ -1,3 +1,5 @@
+export const UserFreeTrialTokens = 500;
+
 export const EssentialMonthlyTokens = 1_000;
 export const EssentialQuarterlyTokens = 3_100;
 export const EssentialAnnualTokens = 12_500;

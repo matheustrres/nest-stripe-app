@@ -1,8 +1,10 @@
 import { Test } from '@nestjs/testing';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
-import { ExecutiveAnnualTokens } from '@/@core/domain/constants/tokens-per-plan';
-import { userDefaultTokensAmount } from '@/@core/domain/constants/user-tokens';
+import {
+	ExecutiveAnnualTokens,
+	UserFreeTrialTokens,
+} from '@/@core/domain/constants/tokens-per-plan';
 import { VendorPlansMap } from '@/@core/domain/constants/vendor-plans-map';
 import { left, right } from '@/@core/domain/logic/either';
 import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
@@ -314,9 +316,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 	});
 
 	it('should create a subscription', async () => {
-		const user = new UserEntityBuilder()
-			.setTokens(userDefaultTokensAmount)
-			.build();
+		const user = new UserEntityBuilder().setTokens(UserFreeTrialTokens).build();
 		const vendorPlan = new VendorPlanBuilder()
 			.setProdId(VendorPlansMap.testing.Executive.Annual.prodId)
 			.setTokensPerCycle(VendorPlansMap.testing.Executive.Annual.tokensPerCycle)
@@ -359,7 +359,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.getInput();
 
 		const currentUserTokensAmount = tokens.amount;
-		expect(currentUserTokensAmount).toEqual(userDefaultTokensAmount);
+		expect(currentUserTokensAmount).toEqual(UserFreeTrialTokens);
 
 		const { subscription } = await sut.exec(input);
 
