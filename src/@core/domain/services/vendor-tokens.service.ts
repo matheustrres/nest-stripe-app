@@ -15,7 +15,7 @@ import { VendorPlanNameEnum } from '@/@core/enums/vendor-plan';
 
 type PlanTokensMap = Record<VendorPlanNameEnum, number>;
 
-export class CoreTokensDomainService {
+export class VendorTokensDomainService {
 	static readonly #PLAN_TOKENS_MAP: PlanTokensMap = {
 		[VendorPlanNameEnum.EssentialMonthly]: EssentialMonthlyTokens,
 		[VendorPlanNameEnum.EssentialQuarterly]: EssentialQuarterlyTokens,
@@ -31,7 +31,7 @@ export class CoreTokensDomainService {
 	handleTokensByPlan(
 		planName: VendorPlanNameEnum,
 	): Either<InvalidPlanDomainError, number> {
-		const planTokens = CoreTokensDomainService.#PLAN_TOKENS_MAP[planName];
+		const planTokens = VendorTokensDomainService.#PLAN_TOKENS_MAP[planName];
 		if (!planTokens) return left(new InvalidPlanDomainError());
 		return right(planTokens);
 	}

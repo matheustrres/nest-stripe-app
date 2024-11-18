@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { UseCase } from '@/@core/application/use-case';
-import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
+import { VendorProductsCatalogDomainService } from '@/@core/domain/services/vendor-products-catalog.service';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
 import { InvalidSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-subscription-action.error';
@@ -30,7 +30,7 @@ export class CreateSubscriptionUseCase
 		UseCase<CreateSubscriptionUseCaseInput, CreateSubscriptionUseCaseOutput>
 {
 	constructor(
-		private readonly corePlansDomainService: CorePlansDomainService,
+		private readonly productsCatalogService: VendorProductsCatalogDomainService,
 		private readonly usersRepository: UsersRepository,
 		private readonly subscriptionsRepository: SubscriptionsRepository,
 		private readonly vendorPaymentsClient: VendorPaymentsClient,
@@ -50,7 +50,7 @@ export class CreateSubscriptionUseCase
 			throw SubscriptionAlreadyExistsError.byUser(userId);
 
 		const vendorProductFindingResult =
-			this.corePlansDomainService.getPlanByProductId(productId);
+			this.productsCatalogService.getPlanByProductId(productId);
 		if (vendorProductFindingResult.isLeft()) {
 			throw InvalidSubscriptionActionError.productNotFound(productId);
 		}

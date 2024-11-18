@@ -1,5 +1,5 @@
 import { ExecutiveMonthlyTokens } from '@/@core/domain/constants/tokens-per-plan';
-import { FullVendorPlanDetails } from '@/@core/domain/constants/vendor-plans-map';
+import { FullVendorPlanDetails } from '@/@core/domain/constants/vendor-products-catalog';
 import {
 	VendorPlanFrequencyEnum,
 	VendorPlanLevelEnum,

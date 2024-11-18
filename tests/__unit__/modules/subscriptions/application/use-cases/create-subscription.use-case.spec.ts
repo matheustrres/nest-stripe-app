@@ -5,10 +5,10 @@ import {
 	ExecutiveAnnualTokens,
 	UserFreeTrialTokens,
 } from '@/@core/domain/constants/tokens-per-plan';
-import { VendorPlansMap } from '@/@core/domain/constants/vendor-plans-map';
+import { VendorProductsCatalogMap } from '@/@core/domain/constants/vendor-products-catalog';
 import { left, right } from '@/@core/domain/logic/either';
-import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
-import { CoreTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
+import { VendorProductsCatalogDomainService } from '@/@core/domain/services/vendor-products-catalog.service';
+import { VendorTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
 import { InvalidSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-subscription-action.error';
@@ -26,7 +26,7 @@ import { CreateSubscriptionUseCaseBuilder } from '#/__unit__/builders/subscripti
 import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(CreateSubscriptionUseCase.name, () => {
-	let corePlansDomainService: CorePlansDomainService;
+	let productsCatalogService: VendorProductsCatalogDomainService;
 	let usersRepository: UsersRepository;
 	let subscriptionsRepository: SubscriptionsRepository;
 	let vendorPaymentsClient: VendorPaymentsClient;
@@ -36,13 +36,13 @@ describe(CreateSubscriptionUseCase.name, () => {
 		const moduleRef = await Test.createTestingModule({
 			providers: [
 				{
-					provide: CorePlansDomainService,
+					provide: VendorProductsCatalogDomainService,
 					useValue: {
 						getPlanByProductId: jest.fn(),
 					},
 				},
 				{
-					provide: CoreTokensDomainService,
+					provide: VendorTokensDomainService,
 					useValue: {
 						handleTokensByPlan: jest.fn(),
 					},
@@ -80,7 +80,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			],
 		}).compile();
 
-		corePlansDomainService = moduleRef.get(CorePlansDomainService);
+		productsCatalogService = moduleRef.get(VendorProductsCatalogDomainService);
 		usersRepository = moduleRef.get(UsersRepository);
 		subscriptionsRepository = moduleRef.get(SubscriptionsRepository);
 		vendorPaymentsClient = moduleRef.get(VendorPaymentsClient);
@@ -88,7 +88,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 	});
 
 	it('should be defined', () => {
-		expect(corePlansDomainService.getPlanByProductId).toBeDefined();
+		expect(productsCatalogService.getPlanByProductId).toBeDefined();
 		expect(usersRepository.findOne).toBeDefined();
 		expect(usersRepository.upsert).toBeDefined();
 		expect(subscriptionsRepository.findByUserId).toBeDefined();
@@ -143,7 +143,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(corePlansDomainService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getPlanByProductId')
 			.mockReturnValueOnce(left(null));
 
 		const productId = 'invalid_product_id';
@@ -160,7 +160,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(corePlansDomainService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
 			productId,
 		);
 	});
@@ -174,7 +174,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(corePlansDomainService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getPlanByProductId')
 			.mockReturnValueOnce(right(vendorPlan));
 		jest
 			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
@@ -196,7 +196,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(corePlansDomainService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
 			productId,
 		);
 		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(
@@ -214,7 +214,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(corePlansDomainService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getPlanByProductId')
 			.mockReturnValueOnce(right(vendorPlan));
 		jest
 			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
@@ -241,7 +241,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(corePlansDomainService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
 			productId,
 		);
 		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(
@@ -265,7 +265,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(corePlansDomainService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getPlanByProductId')
 			.mockReturnValueOnce(right(vendorPlan));
 		jest
 			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
@@ -295,7 +295,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(corePlansDomainService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
 			productId,
 		);
 		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(
@@ -316,10 +316,12 @@ describe(CreateSubscriptionUseCase.name, () => {
 	});
 
 	it('should create a subscription', async () => {
+		const { Executive } = VendorProductsCatalogMap.plans.testing;
+
 		const user = new UserEntityBuilder().setTokens(UserFreeTrialTokens).build();
 		const vendorPlan = new VendorPlanBuilder()
-			.setProdId(VendorPlansMap.testing.Executive.Annual.prodId)
-			.setTokensPerCycle(VendorPlansMap.testing.Executive.Annual.tokensPerCycle)
+			.setProdId(Executive.Annual.prodId)
+			.setTokensPerCycle(Executive.Annual.tokensPerCycle)
 			.build();
 		const vendorPM = new VendorPaymentMethodBuilder().build();
 		const { email, tokens } = user.getProps();
@@ -333,7 +335,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(corePlansDomainService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getPlanByProductId')
 			.mockReturnValueOnce(right(vendorPlan));
 		jest
 			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
@@ -371,7 +373,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(corePlansDomainService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
 			productId,
 		);
 		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(

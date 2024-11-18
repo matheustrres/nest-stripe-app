@@ -3,8 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 
 import { EnvService } from './config/env/env.service';
 import { validateEnv } from './config/env/validate';
-import { CorePlansDomainService } from './domain/services/vendor-plans.service';
-import { CoreTokensDomainService } from './domain/services/vendor-tokens.service';
+import { VendorProductsCatalogDomainService } from './domain/services/vendor-products-catalog.service';
+import { VendorTokensDomainService } from './domain/services/vendor-tokens.service';
 
 @Global()
 @Module({
@@ -15,7 +15,15 @@ import { CoreTokensDomainService } from './domain/services/vendor-tokens.service
 			validate: (config: Record<string, unknown>) => validateEnv(config),
 		}),
 	],
-	providers: [EnvService, CorePlansDomainService, CoreTokensDomainService],
-	exports: [EnvService, CorePlansDomainService, CoreTokensDomainService],
+	providers: [
+		EnvService,
+		VendorProductsCatalogDomainService,
+		VendorTokensDomainService,
+	],
+	exports: [
+		EnvService,
+		VendorProductsCatalogDomainService,
+		VendorTokensDomainService,
+	],
 })
 export class CoreModule {}

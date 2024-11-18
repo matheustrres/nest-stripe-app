@@ -1,11 +1,11 @@
-import { CorePlansDomainService } from '@/@core/domain/services/vendor-plans.service';
+import { VendorProductsCatalogDomainService } from '@/@core/domain/services/vendor-products-catalog.service';
 import { VendorPlanNameEnum } from '@/@core/enums/vendor-plan';
 
-describe(CorePlansDomainService.name, () => {
-	let service: CorePlansDomainService;
+describe(VendorProductsCatalogDomainService.name, () => {
+	let service: VendorProductsCatalogDomainService;
 
 	beforeEach(() => {
-		service = new CorePlansDomainService();
+		service = new VendorProductsCatalogDomainService();
 	});
 
 	describe('.getPlanLevel()', () => {
