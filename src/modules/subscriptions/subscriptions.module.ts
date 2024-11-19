@@ -9,6 +9,7 @@ import { CreateSubscriptionUseCase } from './application/use-cases/create-subscr
 import { StripeVendorPaymentsClientAdapter } from './infra/adapters/clients/payments/stripe.client';
 import { PrismaSubscriptionsRepository } from './infra/drivers/database/subscriptions.repository';
 import { SubscriptionsController } from './infra/drivers/http/rest/subscriptions.controller';
+import { RefundSubscriptionDomainEventListener } from './infra/events/listeners/refund-subscription.listener';
 
 import { EnvService } from '@/@core/config/env/env.service';
 import { NodeEnvEnum } from '@/@core/enums/node-env';
@@ -50,6 +51,7 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 		},
 		CancelSubscriptionUseCase,
 		CreateSubscriptionUseCase,
+		RefundSubscriptionDomainEventListener,
 	],
 	controllers: [SubscriptionsController],
 	exports: [SubscriptionsRepository],

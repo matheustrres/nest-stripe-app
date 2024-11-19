@@ -2,5 +2,11 @@ export enum UserDomainEventsEnum {
 	AccountCreated = 'user.account_created',
 }
 
-export type DomainEventsEnum = UserDomainEventsEnum;
-// | AnyOtherDomainEventEnum
+export enum SubscriptionDomainEventsEnum {
+	RefundFailed = 'subscription.refund_failed',
+	RefundRequest = 'subscription.refund_request',
+}
+
+export type DomainEventsEnum =
+	| UserDomainEventsEnum
+	| SubscriptionDomainEventsEnum;

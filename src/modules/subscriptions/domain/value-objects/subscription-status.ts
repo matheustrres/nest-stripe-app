@@ -27,6 +27,10 @@ export class SubscriptionStatusValueObject
 		return this.status === SubscriptionStatusEnum.Active;
 	}
 
+	isCanceled(): boolean {
+		return this.status === SubscriptionStatusEnum.Canceled;
+	}
+
 	equalsTo(instance: SubscriptionStatusValueObject): boolean {
 		return (
 			this.status === instance.status &&
