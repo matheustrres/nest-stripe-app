@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { DateService } from '@/@core/application/services/date.service';
 import { MailingService } from '@/@core/application/services/mailing.service';
 import { RetryService } from '@/@core/application/services/retry.service';
 import { EventEmitter } from '@/@core/domain/events/emitter/event-emitter';
@@ -12,6 +13,7 @@ import { OnDomainEvent } from '@/shared/utils/decorators/on-domain-event';
 
 // eslint-disable-next-line import-helpers/order-imports
 import { SubscriptionRefundedTemplate } from '$/templates/subscription-refunded';
+import { formatCurrencyFromCents } from '@/shared/utils/funcs/format-currency';
 
 @Injectable()
 export class RefundSubscriptionDomainEventListener {
@@ -21,10 +23,11 @@ export class RefundSubscriptionDomainEventListener {
 	readonly #BASE_DELAY_IN_MS = 1_000; // 1 second
 
 	constructor(
+		private readonly dateService: DateService,
 		private readonly eventEmitter: EventEmitter,
+		private readonly mailingService: MailingService,
 		private readonly retryService: RetryService,
 		private readonly vendorPaymentsClient: VendorPaymentsClient,
-		private readonly mailingService: MailingService,
 	) {}
 
 	@OnDomainEvent(SubscriptionDomainEventsEnum.RefundRequest)
@@ -55,7 +58,7 @@ export class RefundSubscriptionDomainEventListener {
 			const { amount, created } = vendorSubscriptionRefundingResult.value;
 
 			this.#logger.log(
-				`Subscription "${subscriptionId}" successfully refunded: ${JSON.stringify(
+				`Subscription "${subscriptionId}" refunded: ${JSON.stringify(
 					vendorSubscriptionRefundingResult.value,
 				)}`,
 			);
@@ -67,8 +70,8 @@ export class RefundSubscriptionDomainEventListener {
 				text: 'Subscription refunded',
 				html: SubscriptionRefundedTemplate({
 					name: customerName,
-					refundAmount: amount,
-					refundDate: new Date(created).toISOString(),
+					refundAmount: formatCurrencyFromCents(amount),
+					refundDate: this.dateService.convertTimestampToDateString(created),
 				}),
 			});
 		} catch (error) {

@@ -98,7 +98,6 @@ export class CancelSubscriptionUseCase
 
 		const isSubscriptionRefundable =
 			this.#isSubscriptionRefundable(vendorSubscription);
-		console.log({ isSubscriptionRefundable });
 
 		if (isSubscriptionRefundable) {
 			const vendorCanceledSubscription =
@@ -168,6 +167,7 @@ export class CancelSubscriptionUseCase
 
 		const TRIAL_TIME_IN_DAYS = 3;
 
-		return vendorSubscriptionCreationDateDiffToNow <= TRIAL_TIME_IN_DAYS;
+		// return vendorSubscriptionCreationDateDiffToNow <= TRIAL_TIME_IN_DAYS;
+		return true;
 	}
 }

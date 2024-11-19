@@ -7,9 +7,9 @@ function SubscriptionRefundedTemplate({ name, refundAmount, refundDate }) {
   <div style="background-color: white; padding: 20px; border-radius: 0 0 8px 8px; text-align: center;">
       <p style="font-size: 16px; color: #333;">Hello, ${name}</p>
       <p style="font-size: 16px; color: #333;">We have successfully processed your subscription refund.</p>
-      <p style="font-size: 16px; color: #333;">Refund Amount:</p>
-      <p style="font-size: 24px; color: #28a745; font-weight: bold; margin: 20px 0;">$${refundAmount.toFixed(2)}</p>
-      <p style="font-size: 16px; color: #333;">Refund Date:</p>
+      <p style="font-size: 16px; color: #333;">Refund amount:</p>
+      <p style="font-size: 24px; color: #28a745; font-weight: bold; margin: 20px 0;">${refundAmount}</p>
+      <p style="font-size: 16px; color: #333;">Refund date:</p>
       <p style="font-size: 16px; color: #555; margin-bottom: 20px;">${refundDate}</p>
       <p style="font-size: 16px; color: #333;">If you have any questions, feel free to contact our support team.</p>
   </div>
