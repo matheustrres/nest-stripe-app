@@ -20,6 +20,14 @@ export enum VendorSubscriptionStatusEnum {
 	Unpaid = 'unpaid',
 }
 
+export enum VendorRefundedSubscriptionStatusEnum {
+	Canceled = 'canceled',
+	Failed = 'failed',
+	Pending = 'pending',
+	RequiresAction = 'requires_action',
+	Succeeded = 'succeeded',
+}
+
 export type VendorSubscriptionType = {
 	id: string;
 	customer: string;
@@ -34,6 +42,15 @@ export type VendorSubscriptionType = {
 	created: number;
 };
 
+export type VendorRefundedSubscriptionType = {
+	id: string;
+	amount: number;
+	currency: string;
+	reason: string | null;
+	status: VendorRefundedSubscriptionStatusEnum | null;
+	created: number;
+};
+
 export abstract class VendorSubscriptionsResource {
 	abstract cancel(
 		vendorSubscriptionId: string,
@@ -44,4 +61,7 @@ export abstract class VendorSubscriptionsResource {
 		paymentMethodId: string,
 	): Promise<Either<null, VendorSubscriptionType>>;
 	abstract findById(id: string): Promise<Either<null, VendorSubscriptionType>>;
+	abstract refund(
+		latestInvoiceId: string,
+	): Promise<Either<null, VendorRefundedSubscriptionType>>;
 }

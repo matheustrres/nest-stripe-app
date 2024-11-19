@@ -5,6 +5,8 @@ import { Either, left, right } from '@/@core/domain/logic/either';
 
 import {
 	VendorPlanType,
+	VendorRefundedSubscriptionStatusEnum,
+	VendorRefundedSubscriptionType,
 	VendorSubscriptionsResource,
 	VendorSubscriptionStatusEnum,
 	VendorSubscriptionType,
@@ -59,6 +61,26 @@ export class StripeSubscriptionsResourceAdapter
 		return right(this.#buildVendorSubscription(stripeSubscription));
 	}
 
+	async refund(
+		latestInvoiceId: string,
+	): Promise<Either<null, VendorRefundedSubscriptionType>> {
+		const stripeLatestInvoice = await this.stripeClient.invoices
+			.retrieve(latestInvoiceId)
+			.catch(() => null);
+		if (!stripeLatestInvoice) return left(null);
+
+		const stripeRefundedSubscription = await this.stripeClient.refunds
+			.create({
+				charge: stripeLatestInvoice.charge!.toString(),
+			})
+			.catch(() => null);
+		if (!stripeRefundedSubscription) return left(null);
+
+		return right(
+			this.#buildVendorRefundedSubscription(stripeRefundedSubscription),
+		);
+	}
+
 	#buildVendorSubscription(
 		stripeSubscription: Stripe.Subscription,
 	): VendorSubscriptionType {
@@ -77,6 +99,21 @@ export class StripeSubscriptionsResourceAdapter
 			currentPeriodStart: stripeSubscription.current_period_end,
 			cancelAt: stripeSubscription.cancel_at || null,
 			latestInvoice: stripeSubscription.latest_invoice?.toString() || null,
+		};
+	}
+
+	#buildVendorRefundedSubscription(
+		stripeRefundedSubscription: Stripe.Refund,
+	): VendorRefundedSubscriptionType {
+		return {
+			id: stripeRefundedSubscription.id,
+			amount: stripeRefundedSubscription.amount,
+			currency: stripeRefundedSubscription.currency,
+			reason: stripeRefundedSubscription.reason,
+			status: this.#mapRefundedSubscriptionStatus(
+				stripeRefundedSubscription.status,
+			),
+			created: stripeRefundedSubscription.created,
 		};
 	}
 
@@ -101,5 +138,21 @@ export class StripeSubscriptionsResourceAdapter
 			trialing: VendorSubscriptionStatusEnum.Trialing,
 			unpaid: VendorSubscriptionStatusEnum.Unpaid,
 		}[status];
+	}
+
+	#mapRefundedSubscriptionStatus(
+		status: string | null,
+	): VendorRefundedSubscriptionStatusEnum {
+		if (!status) return VendorRefundedSubscriptionStatusEnum.Failed;
+
+		return (
+			{
+				canceled: VendorRefundedSubscriptionStatusEnum.Canceled,
+				failed: VendorRefundedSubscriptionStatusEnum.Failed,
+				pending: VendorRefundedSubscriptionStatusEnum.Pending,
+				requires_action: VendorRefundedSubscriptionStatusEnum.RequiresAction,
+				succeeded: VendorRefundedSubscriptionStatusEnum.Succeeded,
+			}[status] || VendorRefundedSubscriptionStatusEnum.Failed
+		);
 	}
 }
