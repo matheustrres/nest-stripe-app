@@ -167,7 +167,6 @@ export class CancelSubscriptionUseCase
 
 		const TRIAL_TIME_IN_DAYS = 3;
 
-		// return vendorSubscriptionCreationDateDiffToNow <= TRIAL_TIME_IN_DAYS;
-		return true;
+		return vendorSubscriptionCreationDateDiffToNow <= TRIAL_TIME_IN_DAYS;
 	}
 }
