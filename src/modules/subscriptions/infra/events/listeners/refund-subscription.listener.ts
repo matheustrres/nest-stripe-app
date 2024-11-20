@@ -10,17 +10,21 @@ import { VendorPaymentsClient } from '@/modules/subscriptions/application/client
 import { RefundSubscriptionDomainEvent } from '@/modules/subscriptions/domain/events/refund-subscription.event';
 
 import { OnDomainEvent } from '@/shared/utils/decorators/on-domain-event';
+import { formatCurrencyFromCents } from '@/shared/utils/funcs/format-currency';
 
 // eslint-disable-next-line import-helpers/order-imports
 import { SubscriptionRefundedTemplate } from '$/templates/subscription-refunded';
-import { formatCurrencyFromCents } from '@/shared/utils/funcs/format-currency';
+import {
+	convertMilliseconds,
+	toMilliseconds,
+} from '@/shared/utils/funcs/milliseconds';
 
 @Injectable()
 export class RefundSubscriptionDomainEventListener {
 	readonly #logger = new Logger(RefundSubscriptionDomainEventListener.name);
 
-	readonly #MAX_RETRIES = 3;
-	readonly #BASE_DELAY_IN_MS = 1_000; // 1 second
+	readonly #MAX_RETRY_ATTEMPS = 3;
+	readonly #RETRY_DELAY_IN_MS: number;
 
 	constructor(
 		private readonly dateService: DateService,
@@ -28,7 +32,11 @@ export class RefundSubscriptionDomainEventListener {
 		private readonly mailingService: MailingService,
 		private readonly retryService: RetryService,
 		private readonly vendorPaymentsClient: VendorPaymentsClient,
-	) {}
+	) {
+		this.#RETRY_DELAY_IN_MS = toMilliseconds({
+			hours: 1,
+		});
+	}
 
 	@OnDomainEvent(SubscriptionDomainEventsEnum.RefundRequest)
 	async handle(event: RefundSubscriptionDomainEvent): Promise<void> {
@@ -41,51 +49,40 @@ export class RefundSubscriptionDomainEventListener {
 		} = event.data;
 		const retryKey = `${customerId}:${subscriptionId}`;
 
-		try {
-			const vendorSubscriptionRefundingResult =
-				await this.vendorPaymentsClient.subscriptions.refund(
-					subscriptionLatestInvoiceId,
-				);
-			if (vendorSubscriptionRefundingResult.isLeft()) {
-				this.#logger.error(
-					`Error refunding subscription "${subscriptionId}": ${JSON.stringify(
-						vendorSubscriptionRefundingResult.value,
-					)}`,
-				);
-				return;
-			}
-
-			const { amount, created } = vendorSubscriptionRefundingResult.value;
-
-			this.#logger.log(
-				`Subscription "${subscriptionId}" refunded: ${JSON.stringify(
-					vendorSubscriptionRefundingResult.value,
-				)}`,
+		const vendorSubscriptionRefundingResult =
+			await this.vendorPaymentsClient.subscriptions.refund(
+				subscriptionLatestInvoiceId,
 			);
-			this.retryService.removeRetry(retryKey);
-			this.mailingService.sendMail({
-				to: customerEmail,
-				from: 'StripeApp <onboarding@resend.dev>',
-				subject: 'Subscription refunded',
-				text: 'Subscription refunded',
-				html: SubscriptionRefundedTemplate({
-					name: customerName,
-					refundAmount: formatCurrencyFromCents(amount),
-					refundDate: this.dateService.convertTimestampToDateString(created),
-				}),
-			});
-		} catch (error) {
-			this.#logger.error(
-				'Error refunding user subscription: ',
-				console.trace(error),
-			);
+		if (vendorSubscriptionRefundingResult.isLeft()) {
+			this.#logger.error(`Error refunding subscription "${subscriptionId}"`);
 			this.#handleRetry(retryKey, event);
+			return;
 		}
+
+		const { amount, created } = vendorSubscriptionRefundingResult.value;
+
+		this.#logger.log(
+			`Subscription "${subscriptionId}" refunded: ${JSON.stringify(
+				vendorSubscriptionRefundingResult.value,
+			)}`,
+		);
+		this.retryService.removeRetry(retryKey);
+		this.mailingService.sendMail({
+			to: customerEmail,
+			from: 'StripeApp <onboarding@resend.dev>',
+			subject: 'Subscription refunded',
+			text: 'Subscription refunded',
+			html: SubscriptionRefundedTemplate({
+				name: customerName,
+				refundAmount: formatCurrencyFromCents(amount),
+				refundDate: this.dateService.convertTimestampToDateString(created),
+			}),
+		});
 	}
 
 	async #handleRetry(retryKey: string, event: RefundSubscriptionDomainEvent) {
 		const retry = this.retryService.fetchRetry(retryKey);
-		if (retry.attempts >= this.#MAX_RETRIES) {
+		if (retry.attempts >= this.#MAX_RETRY_ATTEMPS) {
 			this.#logger.error(
 				`Maximum retry attempts reached for refunding subscription "${retryKey}"`,
 			);
@@ -96,23 +93,33 @@ export class RefundSubscriptionDomainEventListener {
 			// const subscriptionId = retryKey.split(':')[1]!;
 			// this.eventEmitter.emit(
 			// 	new SubscriptonRefundFailedDomainEvent({
-			// 		retryAttemps: this.#MAX_RETRIES,
+			// 		retryAttemps: this.#MAX_RETRY_ATTEMPS,
 			// 		subscriptionId,
 			// 	}),
 			// );
-			console.log('Emitted SubscriptonRefundFailedDomainEvent');
+			this.#logger.warn('Emitted SubscriptonRefundFailedDomainEvent');
 			this.retryService.removeRetry(retryKey);
-
 			return;
 		}
 
-		/**
-		 * @todo Increase delay time
-		 */
-		const delay =
-			this.#BASE_DELAY_IN_MS * Math.pow(this.#MAX_RETRIES, retry.attempts);
+		const delay = this.#calcRetryAttemptDelay(retry.attempts);
+
+		this.#logger.warn(
+			`Retrying refund for subscription "${retryKey}" in ${JSON.stringify(convertMilliseconds(delay))} (Attempt ${
+				retry.attempts + 1
+			}/${this.#MAX_RETRY_ATTEMPS})`,
+		);
+
 		this.retryService.addRetry(retryKey, retry.attempts + 1, delay);
 
 		setTimeout(() => this.eventEmitter.emit(event), delay);
+	}
+
+	#calcRetryAttemptDelay(attempts: number) {
+		const MAX_DELAY_IN_MS = toMilliseconds({ hours: 24 });
+		return Math.min(
+			this.#RETRY_DELAY_IN_MS * Math.pow(2, attempts),
+			MAX_DELAY_IN_MS,
+		);
 	}
 }
