@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 import { EnvService } from '@/@core/config/env/env.service';
+import { NodeEnvEnum } from '@/@core/enums/node-env';
 
 import { setupSwagger } from '@/shared/libs/swagger/setup';
 
@@ -58,7 +59,9 @@ process.on('unhandledRejection', (reason: unknown) => {
 			'Content-Type,Accept,Authorization,Access-Control-Allow-Origin',
 	});
 
-	setupSwagger(app);
+	if (envService.getKeyOrThrow('NODE_ENV') !== NodeEnvEnum.PRODUCTION) {
+		setupSwagger(app);
+	}
 
 	await app.listen(appPort);
 
