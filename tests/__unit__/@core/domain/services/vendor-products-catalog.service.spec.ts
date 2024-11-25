@@ -1,39 +1,22 @@
-import { VendorProductsCatalogDomainService } from '@/@core/domain/services/vendor-products-catalog.service';
-import { VendorPlanNameEnum } from '@/@core/enums/vendor-plan';
+import { VendorCatalogProductSectionsEnum } from '@/@core/domain/constants/vendor-products-catalog';
+import { VendorProductsCatalogService } from '@/@core/domain/services/vendor-products-catalog.service';
+import { NodeEnvEnum } from '@/@core/enums/node-env';
 
-describe(VendorProductsCatalogDomainService.name, () => {
-	let service: VendorProductsCatalogDomainService;
+describe(VendorProductsCatalogService.name, () => {
+	let service: VendorProductsCatalogService;
+
+	const environment = NodeEnvEnum.TESTING;
 
 	beforeEach(() => {
-		service = new VendorProductsCatalogDomainService();
+		service = new VendorProductsCatalogService();
 	});
 
-	describe('.getPlanLevel()', () => {
-		describe('when looking up for a plan level', () => {
-			it('should return null for an invalid plan name', () => {
-				const planLevelFindingResult = service.getPlanLevel('Pr0fess1ion4l');
-
-				expect(planLevelFindingResult.isLeft()).toBe(true);
-				expect(planLevelFindingResult.isRight()).toBe(false);
-				expect(planLevelFindingResult.value).toBe(null);
-			});
-
-			it('should return the plan level', () => {
-				const planLevelFindingResult = service.getPlanLevel(
-					VendorPlanNameEnum.EssentialMonthly,
-				);
-
-				expect(planLevelFindingResult.isLeft()).toBe(false);
-				expect(planLevelFindingResult.isRight()).toBe(true);
-				expect(planLevelFindingResult.value).toBe('Essential');
-			});
-		});
-	});
-
-	describe('.getPlanByProductId()', () => {
+	describe('.getCatalogSessionProduct()', () => {
 		describe('when looking up for a plan by its product id', () => {
 			it('should return null for an invalid product id', () => {
-				const planFindingResult = service.getPlanByProductId(
+				const planFindingResult = service.getCatalogSessionProduct(
+					VendorCatalogProductSectionsEnum.Plans,
+					environment,
 					'prod_PXmxWlrItuTMoÇv',
 				);
 
@@ -43,7 +26,9 @@ describe(VendorProductsCatalogDomainService.name, () => {
 			});
 
 			it('should return full plan details', () => {
-				const planFindingResult = service.getPlanByProductId(
+				const planFindingResult = service.getCatalogSessionProduct(
+					VendorCatalogProductSectionsEnum.Plans,
+					environment,
 					'prod_RBitgXwWrWB2Fz',
 				);
 

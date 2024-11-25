@@ -38,12 +38,16 @@ export type VendorPlansMapType = {
 	};
 };
 
+export enum VendorCatalogProductSectionsEnum {
+	Plans = 'plans',
+}
+
 export type VendorProductsCatalogMapType = {
-	plans: VendorPlansMapType;
+	[VendorCatalogProductSectionsEnum.Plans]: VendorPlansMapType;
 };
 
 export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
-	plans: {
+	[VendorCatalogProductSectionsEnum.Plans]: {
 		[NodeEnvEnum.DEVELOPMENT]: {
 			[VendorPlanLevelEnum.Essential]: {
 				[VendorPlanFrequencyEnum.Monthly]: {

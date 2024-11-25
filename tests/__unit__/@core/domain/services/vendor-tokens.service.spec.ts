@@ -1,12 +1,12 @@
 import { InvalidPlanDomainError } from '@/@core/domain/errors/invalid-plan.error';
-import { VendorTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
+import { VendorTokensService } from '@/@core/domain/services/vendor-tokens.service';
 import { VendorPlanNameEnum } from '@/@core/enums/vendor-plan';
 
-describe(VendorTokensDomainService.name, () => {
-	let service: VendorTokensDomainService;
+describe(VendorTokensService.name, () => {
+	let service: VendorTokensService;
 
 	beforeEach(() => {
-		service = new VendorTokensDomainService();
+		service = new VendorTokensService();
 	});
 
 	describe('.handleTokensByPlan()', () => {

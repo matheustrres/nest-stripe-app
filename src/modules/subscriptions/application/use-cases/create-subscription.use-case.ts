@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { UseCase } from '@/@core/application/use-case';
-import { VendorProductsCatalogDomainService } from '@/@core/domain/services/vendor-products-catalog.service';
+import { EnvService } from '@/@core/config/env/env.service';
+import { VendorCatalogProductSectionsEnum } from '@/@core/domain/constants/vendor-products-catalog';
+import { VendorProductsCatalogService } from '@/@core/domain/services/vendor-products-catalog.service';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
 import { InvalidSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-subscription-action.error';
@@ -30,7 +32,8 @@ export class CreateSubscriptionUseCase
 		UseCase<CreateSubscriptionUseCaseInput, CreateSubscriptionUseCaseOutput>
 {
 	constructor(
-		private readonly productsCatalogService: VendorProductsCatalogDomainService,
+		private readonly envService: EnvService,
+		private readonly productsCatalogService: VendorProductsCatalogService,
 		private readonly usersRepository: UsersRepository,
 		private readonly subscriptionsRepository: SubscriptionsRepository,
 		private readonly vendorPaymentsClient: VendorPaymentsClient,
@@ -46,14 +49,19 @@ export class CreateSubscriptionUseCase
 
 		const userAlreadyHasSubscription =
 			await this.subscriptionsRepository.findByUserId(userId);
-		if (!!userAlreadyHasSubscription)
+		if (userAlreadyHasSubscription)
 			throw SubscriptionAlreadyExistsError.byUser(userId);
 
-		const vendorProductFindingResult =
-			this.productsCatalogService.getPlanByProductId(productId);
-		if (vendorProductFindingResult.isLeft()) {
+		const currentEnvironment = this.envService.getKeyOrThrow('NODE_ENV');
+
+		const vendorPlanFindingResult =
+			this.productsCatalogService.getCatalogSessionProduct(
+				VendorCatalogProductSectionsEnum.Plans,
+				currentEnvironment,
+				productId,
+			);
+		if (vendorPlanFindingResult.isLeft())
 			throw InvalidSubscriptionActionError.productNotFound(productId);
-		}
 
 		const vendorPaymentMethodFindingResult =
 			await this.vendorPaymentsClient.paymentMethods.findById(paymentMethodId);
@@ -75,7 +83,7 @@ export class CreateSubscriptionUseCase
 			throw InvalidSubscriptionActionError.byCreatingCustomer();
 
 		const vendorCustomer = vendorCustomerCreationResult.value;
-		const vendorProduct = vendorProductFindingResult.value;
+		const vendorProduct = vendorPlanFindingResult.value;
 
 		const vendorSubscriptionCreationResult =
 			await this.vendorPaymentsClient.subscriptions.create(

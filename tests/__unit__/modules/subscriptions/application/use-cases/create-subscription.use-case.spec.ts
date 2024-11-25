@@ -1,14 +1,19 @@
 import { Test } from '@nestjs/testing';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
+import { EnvService } from '@/@core/config/env/env.service';
 import {
 	ExecutiveAnnualTokens,
 	UserFreeTrialTokens,
 } from '@/@core/domain/constants/tokens-per-plan';
-import { VendorProductsCatalogMap } from '@/@core/domain/constants/vendor-products-catalog';
+import {
+	VendorCatalogProductSectionsEnum,
+	VendorProductsCatalogMap,
+} from '@/@core/domain/constants/vendor-products-catalog';
 import { left, right } from '@/@core/domain/logic/either';
-import { VendorProductsCatalogDomainService } from '@/@core/domain/services/vendor-products-catalog.service';
-import { VendorTokensDomainService } from '@/@core/domain/services/vendor-tokens.service';
+import { VendorProductsCatalogService } from '@/@core/domain/services/vendor-products-catalog.service';
+import { VendorTokensService } from '@/@core/domain/services/vendor-tokens.service';
+import { NodeEnvEnum } from '@/@core/enums/node-env';
 
 import { VendorPaymentsClient } from '@/modules/subscriptions/application/clients/payments/payments.client';
 import { InvalidSubscriptionActionError } from '@/modules/subscriptions/application/errors/invalid-subscription-action.error';
@@ -26,7 +31,7 @@ import { CreateSubscriptionUseCaseBuilder } from '#/__unit__/builders/subscripti
 import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(CreateSubscriptionUseCase.name, () => {
-	let productsCatalogService: VendorProductsCatalogDomainService;
+	let productsCatalogService: VendorProductsCatalogService;
 	let usersRepository: UsersRepository;
 	let subscriptionsRepository: SubscriptionsRepository;
 	let vendorPaymentsClient: VendorPaymentsClient;
@@ -36,13 +41,19 @@ describe(CreateSubscriptionUseCase.name, () => {
 		const moduleRef = await Test.createTestingModule({
 			providers: [
 				{
-					provide: VendorProductsCatalogDomainService,
+					provide: EnvService,
 					useValue: {
-						getPlanByProductId: jest.fn(),
+						getKeyOrThrow: jest.fn().mockReturnValue(NodeEnvEnum.TESTING),
 					},
 				},
 				{
-					provide: VendorTokensDomainService,
+					provide: VendorProductsCatalogService,
+					useValue: {
+						getCatalogSessionProduct: jest.fn(),
+					},
+				},
+				{
+					provide: VendorTokensService,
 					useValue: {
 						handleTokensByPlan: jest.fn(),
 					},
@@ -80,7 +91,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			],
 		}).compile();
 
-		productsCatalogService = moduleRef.get(VendorProductsCatalogDomainService);
+		productsCatalogService = moduleRef.get(VendorProductsCatalogService);
 		usersRepository = moduleRef.get(UsersRepository);
 		subscriptionsRepository = moduleRef.get(SubscriptionsRepository);
 		vendorPaymentsClient = moduleRef.get(VendorPaymentsClient);
@@ -88,7 +99,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 	});
 
 	it('should be defined', () => {
-		expect(productsCatalogService.getPlanByProductId).toBeDefined();
+		expect(productsCatalogService.getCatalogSessionProduct).toBeDefined();
 		expect(usersRepository.findOne).toBeDefined();
 		expect(usersRepository.upsert).toBeDefined();
 		expect(subscriptionsRepository.findByUserId).toBeDefined();
@@ -135,7 +146,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 		);
 	});
 
-	it('should throw a InvalidSubscriptionActionError if no vendor product is found with given {productId}', async () => {
+	it('should throw a InvalidSubscriptionActionError if no vendor plan is found with given {productId}', async () => {
 		const user = new UserEntityBuilder().build();
 
 		jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
@@ -143,7 +154,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(productsCatalogService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getCatalogSessionProduct')
 			.mockReturnValueOnce(left(null));
 
 		const productId = 'invalid_product_id';
@@ -160,7 +171,11 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(
+			productsCatalogService.getCatalogSessionProduct,
+		).toHaveBeenCalledWith(
+			VendorCatalogProductSectionsEnum.Plans,
+			NodeEnvEnum.TESTING,
 			productId,
 		);
 	});
@@ -174,7 +189,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(productsCatalogService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getCatalogSessionProduct')
 			.mockReturnValueOnce(right(vendorPlan));
 		jest
 			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
@@ -196,7 +211,11 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(
+			productsCatalogService.getCatalogSessionProduct,
+		).toHaveBeenCalledWith(
+			VendorCatalogProductSectionsEnum.Plans,
+			NodeEnvEnum.TESTING,
 			productId,
 		);
 		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(
@@ -214,7 +233,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(productsCatalogService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getCatalogSessionProduct')
 			.mockReturnValueOnce(right(vendorPlan));
 		jest
 			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
@@ -241,7 +260,11 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(
+			productsCatalogService.getCatalogSessionProduct,
+		).toHaveBeenCalledWith(
+			VendorCatalogProductSectionsEnum.Plans,
+			NodeEnvEnum.TESTING,
 			productId,
 		);
 		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(
@@ -265,7 +288,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(productsCatalogService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getCatalogSessionProduct')
 			.mockReturnValueOnce(right(vendorPlan));
 		jest
 			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
@@ -295,7 +318,11 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(
+			productsCatalogService.getCatalogSessionProduct,
+		).toHaveBeenCalledWith(
+			VendorCatalogProductSectionsEnum.Plans,
+			NodeEnvEnum.TESTING,
 			productId,
 		);
 		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(
@@ -335,7 +362,7 @@ describe(CreateSubscriptionUseCase.name, () => {
 			.spyOn(subscriptionsRepository, 'findByUserId')
 			.mockResolvedValueOnce(null);
 		jest
-			.spyOn(productsCatalogService, 'getPlanByProductId')
+			.spyOn(productsCatalogService, 'getCatalogSessionProduct')
 			.mockReturnValueOnce(right(vendorPlan));
 		jest
 			.spyOn(vendorPaymentsClient.paymentMethods, 'findById')
@@ -373,7 +400,11 @@ describe(CreateSubscriptionUseCase.name, () => {
 		expect(subscriptionsRepository.findByUserId).toHaveBeenCalledWith(
 			input.userId,
 		);
-		expect(productsCatalogService.getPlanByProductId).toHaveBeenCalledWith(
+		expect(
+			productsCatalogService.getCatalogSessionProduct,
+		).toHaveBeenCalledWith(
+			VendorCatalogProductSectionsEnum.Plans,
+			NodeEnvEnum.TESTING,
 			productId,
 		);
 		expect(vendorPaymentsClient.paymentMethods.findById).toHaveBeenCalledWith(
