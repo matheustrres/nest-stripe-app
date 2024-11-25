@@ -34,7 +34,6 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 
 				return {
 					apiKey: stripeApiKey,
-					apiVersion: '2024-10-28.acacia',
 				};
 			},
 			inject: [EnvService],
