@@ -39,7 +39,7 @@ export class UserEntityBuilder {
 		return this;
 	}
 
-	setRoleEnum(role: RoleEnum): this {
+	setRole(role: RoleEnum): this {
 		this.#props.role = role;
 		return this;
 	}
