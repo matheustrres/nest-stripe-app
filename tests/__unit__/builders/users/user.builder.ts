@@ -1,6 +1,6 @@
 import { UserTokensValueObjectBuilder } from './value-objects/user-tokens.builder';
 
-import { Role } from '@/@core/enums/user-role';
+import { RoleEnum } from '@/@core/enums/user-role';
 
 import { SubscriptionEntity } from '@/modules/subscriptions/domain/subscription.entity';
 import {
@@ -15,7 +15,7 @@ export class UserEntityBuilder {
 		name: FakerLib.person.fullName(),
 		email: FakerLib.internet.email(),
 		password: FakerLib.internet.password(),
-		role: Role.User,
+		role: RoleEnum.User,
 		tokens: new UserTokensValueObjectBuilder().build(),
 		isAccountConfirmed: false,
 	};
@@ -39,7 +39,7 @@ export class UserEntityBuilder {
 		return this;
 	}
 
-	setRole(role: Role): this {
+	setRoleEnum(role: RoleEnum): this {
 		this.#props.role = role;
 		return this;
 	}

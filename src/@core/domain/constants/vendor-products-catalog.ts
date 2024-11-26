@@ -23,6 +23,7 @@ export type VendorPlanDetails = {
 	priceId: string;
 	prodId: string;
 	tokensPerCycle: number;
+	allowedMembers: number;
 };
 
 export type FullVendorPlanDetails = VendorPlanDetails & {
@@ -56,6 +57,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLQ0P7QrM0bVUX4JFRP2Ty',
 					prodId: 'prod_RBirDCtO3k153f',
 					tokensPerCycle: EssentialMonthlyTokens,
+					allowedMembers: 3,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.EssentialQuarterly,
@@ -63,6 +65,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLRSP7QrM0bVUXLLVADrvV',
 					prodId: 'prod_RBitgXwWrWB2Fz',
 					tokensPerCycle: EssentialQuarterlyTokens,
+					allowedMembers: 3,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.EssentialAnnual,
@@ -70,6 +73,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLTOP7QrM0bVUXwbSIoCr6',
 					prodId: 'prod_RBivZi1bPizyOZ',
 					tokensPerCycle: EssentialAnnualTokens,
+					allowedMembers: 3,
 				},
 			},
 			[VendorPlanLevelEnum.Professional]: {
@@ -79,6 +83,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLTtP7QrM0bVUXj08tRKUU',
 					prodId: 'prod_RBiv5Fz54dq0ur',
 					tokensPerCycle: ProfessionalMonthlyTokens,
+					allowedMembers: 10,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.ProfessionalQuarterly,
@@ -86,6 +91,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLULP7QrM0bVUXz3OzYeRV',
 					prodId: 'prod_RBiw9HlsG6vP3w',
 					tokensPerCycle: ProfessionalQuarterlyTokens,
+					allowedMembers: 10,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.ProfessionalAnnual,
@@ -93,6 +99,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLUwP7QrM0bVUXGYKaY3si',
 					prodId: 'prod_RBiw9BI5PfTXS0',
 					tokensPerCycle: ProfessionalAnnualTokens,
+					allowedMembers: 10,
 				},
 			},
 			[VendorPlanLevelEnum.Executive]: {
@@ -102,6 +109,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLVMP7QrM0bVUXHRcs67nS',
 					prodId: 'prod_RBixtKeGEZ6yxC',
 					tokensPerCycle: ExecutiveMonthlyTokens,
+					allowedMembers: 20,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.ExecutiveQuarterly,
@@ -109,6 +117,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLVoP7QrM0bVUXx9M0C6W5',
 					prodId: 'prod_RBix8pfaOx43vH',
 					tokensPerCycle: ExecutiveQuarterlyTokens,
+					allowedMembers: 20,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.ExecutiveAnnual,
@@ -116,6 +125,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLWPP7QrM0bVUX38uYAVjb',
 					prodId: 'prod_RBiyPW7WUWHH6I',
 					tokensPerCycle: ExecutiveAnnualTokens,
+					allowedMembers: 20,
 				},
 			},
 		},
@@ -127,6 +137,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QKNKAP7QrM0bVUXJ84RGlYt',
 					prodId: 'prod_RCmtabQ4sItL88',
 					tokensPerCycle: EssentialMonthlyTokens,
+					allowedMembers: 3,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.EssentialQuarterly,
@@ -134,6 +145,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QKNKbP7QrM0bVUXeekzXH8k',
 					prodId: 'prod_RCmuPCPJiIpBM5',
 					tokensPerCycle: EssentialQuarterlyTokens,
+					allowedMembers: 3,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.EssentialAnnual,
@@ -141,6 +153,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QKNL5P7QrM0bVUXPR5JtcQK',
 					prodId: 'prod_RCmu46rBJifzUT',
 					tokensPerCycle: EssentialAnnualTokens,
+					allowedMembers: 3,
 				},
 			},
 			[VendorPlanLevelEnum.Professional]: {
@@ -150,6 +163,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QKNMKP7QrM0bVUXwkqNtztQ',
 					prodId: 'prod_RCmwkFdogeomzy',
 					tokensPerCycle: ProfessionalMonthlyTokens,
+					allowedMembers: 10,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.ProfessionalQuarterly,
@@ -157,6 +171,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QKNMlP7QrM0bVUXjQJIoAPZ',
 					prodId: 'prod_RCmwrpkxUsWBUZ',
 					tokensPerCycle: ProfessionalQuarterlyTokens,
+					allowedMembers: 10,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.ProfessionalAnnual,
@@ -164,6 +179,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QKNNEP7QrM0bVUXfeavspbS',
 					prodId: 'prod_RCmxYrItDzMoZv',
 					tokensPerCycle: ProfessionalAnnualTokens,
+					allowedMembers: 10,
 				},
 			},
 			[VendorPlanLevelEnum.Executive]: {
@@ -173,6 +189,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QKNNjP7QrM0bVUXpA0Yaj0A',
 					prodId: 'prod_RCmxp2Eq07Uc0T',
 					tokensPerCycle: ExecutiveMonthlyTokens,
+					allowedMembers: 20,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.ExecutiveQuarterly,
@@ -180,6 +197,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QKNOEP7QrM0bVUXrgj4NvUB',
 					prodId: 'prod_RCmyhyycds4szP',
 					tokensPerCycle: ExecutiveQuarterlyTokens,
+					allowedMembers: 20,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.ExecutiveAnnual,
@@ -187,6 +205,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QKNOlP7QrM0bVUXZrGAVXe4',
 					prodId: 'prod_RCmyxYpnU49Qjd',
 					tokensPerCycle: ExecutiveAnnualTokens,
+					allowedMembers: 20,
 				},
 			},
 		},
@@ -198,6 +217,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLQ0P7QrM0bVUX4JFRP2Ty',
 					prodId: 'prod_RBirDCtO3k153f',
 					tokensPerCycle: EssentialMonthlyTokens,
+					allowedMembers: 3,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.EssentialQuarterly,
@@ -205,6 +225,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLRSP7QrM0bVUXLLVADrvV',
 					prodId: 'prod_RBitgXwWrWB2Fz',
 					tokensPerCycle: EssentialQuarterlyTokens,
+					allowedMembers: 3,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.EssentialAnnual,
@@ -212,6 +233,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLTOP7QrM0bVUXwbSIoCr6',
 					prodId: 'prod_RBivZi1bPizyOZ',
 					tokensPerCycle: EssentialAnnualTokens,
+					allowedMembers: 3,
 				},
 			},
 			[VendorPlanLevelEnum.Professional]: {
@@ -221,6 +243,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLTtP7QrM0bVUXj08tRKUU',
 					prodId: 'prod_RBiv5Fz54dq0ur',
 					tokensPerCycle: ProfessionalMonthlyTokens,
+					allowedMembers: 10,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.ProfessionalQuarterly,
@@ -228,6 +251,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLULP7QrM0bVUXz3OzYeRV',
 					prodId: 'prod_RBiw9HlsG6vP3w',
 					tokensPerCycle: ProfessionalQuarterlyTokens,
+					allowedMembers: 10,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.ProfessionalAnnual,
@@ -235,6 +259,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLUwP7QrM0bVUXGYKaY3si',
 					prodId: 'prod_RBiw9BI5PfTXS0',
 					tokensPerCycle: ProfessionalAnnualTokens,
+					allowedMembers: 10,
 				},
 			},
 			[VendorPlanLevelEnum.Executive]: {
@@ -244,6 +269,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLVMP7QrM0bVUXHRcs67nS',
 					prodId: 'prod_RBixtKeGEZ6yxC',
 					tokensPerCycle: ExecutiveMonthlyTokens,
+					allowedMembers: 20,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.ExecutiveQuarterly,
@@ -251,6 +277,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLVoP7QrM0bVUXx9M0C6W5',
 					prodId: 'prod_RBix8pfaOx43vH',
 					tokensPerCycle: ExecutiveQuarterlyTokens,
+					allowedMembers: 20,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.ExecutiveAnnual,
@@ -258,6 +285,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLWPP7QrM0bVUX38uYAVjb',
 					prodId: 'prod_RBiyPW7WUWHH6I',
 					tokensPerCycle: ExecutiveAnnualTokens,
+					allowedMembers: 20,
 				},
 			},
 		},
@@ -269,6 +297,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLQ0P7QrM0bVUX4JFRP2Ty',
 					prodId: 'prod_RBirDCtO3k153f',
 					tokensPerCycle: EssentialMonthlyTokens,
+					allowedMembers: 3,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.EssentialQuarterly,
@@ -276,6 +305,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLRSP7QrM0bVUXLLVADrvV',
 					prodId: 'prod_RBitgXwWrWB2Fz',
 					tokensPerCycle: EssentialQuarterlyTokens,
+					allowedMembers: 3,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.EssentialAnnual,
@@ -283,6 +313,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLTOP7QrM0bVUXwbSIoCr6',
 					prodId: 'prod_RBivZi1bPizyOZ',
 					tokensPerCycle: EssentialAnnualTokens,
+					allowedMembers: 3,
 				},
 			},
 			[VendorPlanLevelEnum.Professional]: {
@@ -292,6 +323,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLTtP7QrM0bVUXj08tRKUU',
 					prodId: 'prod_RBiv5Fz54dq0ur',
 					tokensPerCycle: ProfessionalMonthlyTokens,
+					allowedMembers: 10,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.ProfessionalQuarterly,
@@ -299,6 +331,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLULP7QrM0bVUXz3OzYeRV',
 					prodId: 'prod_RBiw9HlsG6vP3w',
 					tokensPerCycle: ProfessionalQuarterlyTokens,
+					allowedMembers: 10,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.ProfessionalAnnual,
@@ -306,6 +339,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLUwP7QrM0bVUXGYKaY3si',
 					prodId: 'prod_RBiw9BI5PfTXS0',
 					tokensPerCycle: ProfessionalAnnualTokens,
+					allowedMembers: 10,
 				},
 			},
 			[VendorPlanLevelEnum.Executive]: {
@@ -315,6 +349,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLVMP7QrM0bVUXHRcs67nS',
 					prodId: 'prod_RBixtKeGEZ6yxC',
 					tokensPerCycle: ExecutiveMonthlyTokens,
+					allowedMembers: 20,
 				},
 				[VendorPlanFrequencyEnum.Quarterly]: {
 					name: VendorPlanNameEnum.ExecutiveQuarterly,
@@ -322,6 +357,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLVoP7QrM0bVUXx9M0C6W5',
 					prodId: 'prod_RBix8pfaOx43vH',
 					tokensPerCycle: ExecutiveQuarterlyTokens,
+					allowedMembers: 20,
 				},
 				[VendorPlanFrequencyEnum.Annual]: {
 					name: VendorPlanNameEnum.ExecutiveAnnual,
@@ -329,6 +365,7 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 					priceId: 'price_1QJLWPP7QrM0bVUX38uYAVjb',
 					prodId: 'prod_RBiyPW7WUWHH6I',
 					tokensPerCycle: ExecutiveAnnualTokens,
+					allowedMembers: 20,
 				},
 			},
 		},

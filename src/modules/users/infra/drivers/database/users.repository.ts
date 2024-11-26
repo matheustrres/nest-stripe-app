@@ -14,6 +14,14 @@ import { PrismaService } from '@/shared/modules/prisma/prisma.service';
 export class PrismaUsersRepository implements UsersRepository {
 	constructor(private readonly prismaService: PrismaService) {}
 
+	async countUserGuests(userId: string): Promise<number> {
+		return this.prismaService.guest.count({
+			where: {
+				ownerId: userId,
+			},
+		});
+	}
+
 	async delete(id: string): Promise<void> {
 		await this.prismaService.user.delete({
 			where: {

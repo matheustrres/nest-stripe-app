@@ -3,7 +3,7 @@ import { UserTokensValueObject } from './value-objects/tokens';
 import { UserFreeTrialTokens } from '@/@core/domain/constants/tokens-per-plan';
 import { CreateEntityProps, Entity } from '@/@core/domain/entity';
 import { EntityCuid } from '@/@core/domain/entity-cuid';
-import { Role } from '@/@core/enums/user-role';
+import { RoleEnum } from '@/@core/enums/user-role';
 import { Optional } from '@/@core/types';
 
 import { SubscriptionEntity } from '@/modules/subscriptions/domain/subscription.entity';
@@ -12,7 +12,7 @@ export type UserEntityProps = {
 	name: string;
 	email: string;
 	password: string;
-	role: Role;
+	role: RoleEnum;
 	tokens: UserTokensValueObject;
 	isAccountConfirmed: boolean;
 	subscription?: SubscriptionEntity;
@@ -35,7 +35,7 @@ export class UserEntity extends Entity<UserEntityProps> {
 			id,
 			props: {
 				...props,
-				role: props.role ?? Role.User,
+				role: props.role ?? RoleEnum.User,
 				tokens: props.tokens ?? new UserTokensValueObject(UserFreeTrialTokens),
 				isAccountConfirmed: props.isAccountConfirmed ?? false,
 			},

@@ -4,7 +4,7 @@ import { AlphanumericCodeService } from '@/@core/application/services/alpha-nume
 import { HashingService } from '@/@core/application/services/hashing.service';
 import { UseCase } from '@/@core/application/use-case';
 import { EventEmitter } from '@/@core/domain/events/emitter/event-emitter';
-import { Role } from '@/@core/enums/user-role';
+import { RoleEnum } from '@/@core/enums/user-role';
 
 import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
@@ -15,7 +15,7 @@ export type SignUpUseCaseInput = {
 	name: string;
 	email: string;
 	password: string;
-	role?: Role;
+	role?: RoleEnum;
 };
 
 export type SignUpUseCaseOutput = {

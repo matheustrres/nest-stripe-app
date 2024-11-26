@@ -7,7 +7,7 @@ export type InviteEntityProps = {
 	expiresAt: Date;
 	status: InviteStatusEnum;
 	ownerId: EntityCuid;
-	guestId: EntityCuid;
+	guestId?: EntityCuid;
 };
 
 type InviteEntityConstructorProps = CreateEntityProps<InviteEntityProps>;
