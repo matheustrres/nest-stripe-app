@@ -5,19 +5,21 @@ import { DateService } from '@/@core/application/services/date.service';
 import { EnvService } from '@/@core/config/env/env.service';
 import { VendorCatalogProductSectionsEnum } from '@/@core/domain/constants/vendor-products-catalog';
 import { EventEmitter } from '@/@core/domain/events/emitter/event-emitter';
-import { left } from '@/@core/domain/logic/either';
+import { left, right } from '@/@core/domain/logic/either';
 import { VendorProductsCatalogService } from '@/@core/domain/services/vendor-products-catalog.service';
 import { NodeEnvEnum } from '@/@core/enums/node-env';
 import { RoleEnum } from '@/@core/enums/user-role';
 
 import { InvitesRepository } from '@/modules/guests/application/repositories/invites.repository';
 import { InviteGuestUseCase } from '@/modules/guests/application/use-cases/invite-guest.use-case';
+import { GuestInvitedDomainEvent } from '@/modules/guests/domain/events/guest-invited.event';
 import { SubscriptionNotFoundError } from '@/modules/subscriptions/application/errors/subscription-not-found.error';
 import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
 import { InviteGuestUseCaseBuilder } from '#/__unit__/builders/guests/use-cases/invite-guest.builder';
 import { SubscriptionEntityBuilder } from '#/__unit__/builders/subscriptions/subscription.builder';
+import { VendorPlanBuilder } from '#/__unit__/builders/subscriptions/types/vendor-plan.builder';
 import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(InviteGuestUseCase.name, () => {
@@ -215,5 +217,63 @@ describe(InviteGuestUseCase.name, () => {
 			NodeEnvEnum.TESTING,
 			vendorProductId,
 		);
+	});
+
+	it('should invite a guest', async () => {
+		const mockedSubscription = new SubscriptionEntityBuilder().build();
+		const mockedUser = new UserEntityBuilder()
+			.setRole(RoleEnum.Owner)
+			.setSubscription(mockedSubscription)
+			.build();
+		const mockedVendorPlan = new VendorPlanBuilder()
+			.setProdId(mockedSubscription.getProps().vendorProductId)
+			.build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(mockedUser);
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
+		jest
+			.spyOn(envService, 'getKeyOrThrow')
+			.mockReturnValue(NodeEnvEnum.TESTING);
+		jest
+			.spyOn(productsCatalogService, 'getCatalogSessionProduct')
+			.mockReturnValueOnce(right(mockedVendorPlan));
+		jest.spyOn(invitesRepository, 'upsert');
+		jest.spyOn(eventEmitter, 'emit');
+
+		const input = new InviteGuestUseCaseBuilder()
+			.setOwnerId(mockedUser.id)
+			.getInput();
+
+		const { subscription: ownerSubscription } = mockedUser.getProps();
+		const { vendorProductId } = ownerSubscription!.getProps();
+
+		const { invite } = await sut.exec(input);
+
+		expect(usersRepository.findById).toHaveBeenCalledWith(input.ownerId, {
+			relations: {
+				subscription: true,
+			},
+		});
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.guestEmail);
+		expect(
+			productsCatalogService.getCatalogSessionProduct,
+		).toHaveBeenCalledWith(
+			VendorCatalogProductSectionsEnum.Plans,
+			NodeEnvEnum.TESTING,
+			vendorProductId,
+		);
+		expect(invitesRepository.upsert).toHaveBeenCalled();
+
+		const eventEmitterEmitLastCallData = (
+			(eventEmitter.emit as jest.Mock).mock
+				.calls[0][0] as GuestInvitedDomainEvent
+		).data;
+
+		expect(eventEmitterEmitLastCallData).toStrictEqual({
+			name: input.guestName,
+			email: input.guestEmail,
+		});
+		expect(invite).toBeDefined();
+		expect(invite.getProps().ownerId).toStrictEqual(mockedUser.id);
 	});
 });
