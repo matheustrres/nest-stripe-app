@@ -18,9 +18,41 @@ model User {
   subscription       Subscription?
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
+  guest              Guest?        @relation("Guest")
+  guests             Guest[]       @relation("Owner")
+  invites            Invite[]      @relation("Owner")
 
   @@index([email])
   @@map("users")
+}
+
+model Invite {
+  id        String   @id @default(cuid())
+  expiresAt DateTime @map("expires_at")
+  status    String
+  ownerId   String   @map("owner_id")
+  owner     User     @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  guest     Guest    @relation(fields: [guestId], references: [id])
+  guestId   String   @unique @map("guest_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([ownerId])
+  @@map("invites")
+}
+
+model Guest {
+  id        String   @id @default(cuid())
+  user      User     @relation("Guest", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique @map("user_id")
+  owner     User     @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String   @map("owner_id")
+  invite    Invite?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId, ownerId])
+  @@map("guests")
 }
 
 model Subscription {
@@ -34,5 +66,6 @@ model Subscription {
   createdAt            DateTime @default(now()) @map("created_at")
   updatedAt            DateTime @updatedAt @map("updated_at")
 
+  @@index([userId, vendorSubscriptionId, vendorProductId])
   @@map("subscriptions")
 }
