@@ -123,4 +123,23 @@ describe(InviteGuestUseCase.name, () => {
 			},
 		});
 	});
+
+	it('should throw a InvalidCredentialsError if user has no subscription', async () => {
+		const user = new UserEntityBuilder().setRole(RoleEnum.Owner).build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+
+		const input = new InviteGuestUseCaseBuilder()
+			.setOwnerId(user.id)
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			new InvalidCredentialsError('Not allowed.'),
+		);
+		expect(usersRepository.findById).toHaveBeenCalledWith(input.ownerId, {
+			relations: {
+				subscription: true,
+			},
+		});
+	});
 });
