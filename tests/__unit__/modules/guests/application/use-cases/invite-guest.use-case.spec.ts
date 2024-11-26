@@ -3,12 +3,16 @@ import { Test } from '@nestjs/testing';
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { DateService } from '@/@core/application/services/date.service';
 import { EnvService } from '@/@core/config/env/env.service';
+import { VendorCatalogProductSectionsEnum } from '@/@core/domain/constants/vendor-products-catalog';
 import { EventEmitter } from '@/@core/domain/events/emitter/event-emitter';
+import { left } from '@/@core/domain/logic/either';
 import { VendorProductsCatalogService } from '@/@core/domain/services/vendor-products-catalog.service';
+import { NodeEnvEnum } from '@/@core/enums/node-env';
 import { RoleEnum } from '@/@core/enums/user-role';
 
 import { InvitesRepository } from '@/modules/guests/application/repositories/invites.repository';
 import { InviteGuestUseCase } from '@/modules/guests/application/use-cases/invite-guest.use-case';
+import { SubscriptionNotFoundError } from '@/modules/subscriptions/application/errors/subscription-not-found.error';
 import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
@@ -108,12 +112,12 @@ describe(InviteGuestUseCase.name, () => {
 	});
 
 	it('should throw a InvalidCredentialsError if user role is different than owner', async () => {
-		const user = new UserEntityBuilder().setRole(RoleEnum.User).build();
+		const mockedUser = new UserEntityBuilder().setRole(RoleEnum.User).build();
 
-		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(mockedUser);
 
 		const input = new InviteGuestUseCaseBuilder()
-			.setOwnerId(user.id)
+			.setOwnerId(mockedUser.id)
 			.getInput();
 
 		await expect(sut.exec(input)).rejects.toThrow(
@@ -127,12 +131,12 @@ describe(InviteGuestUseCase.name, () => {
 	});
 
 	it('should throw a InvalidCredentialsError if user has no subscription', async () => {
-		const user = new UserEntityBuilder().setRole(RoleEnum.Owner).build();
+		const mockedUser = new UserEntityBuilder().setRole(RoleEnum.Owner).build();
 
-		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(mockedUser);
 
 		const input = new InviteGuestUseCaseBuilder()
-			.setOwnerId(user.id)
+			.setOwnerId(mockedUser.id)
 			.getInput();
 
 		await expect(sut.exec(input)).rejects.toThrow(
@@ -146,18 +150,18 @@ describe(InviteGuestUseCase.name, () => {
 	});
 
 	it('should throw a UserAlreadyExistsError if given {guestEmail} is already in use', async () => {
-		const subscription = new SubscriptionEntityBuilder().build();
-		const user = new UserEntityBuilder()
+		const mockedSubscription = new SubscriptionEntityBuilder().build();
+		const mockedUser = new UserEntityBuilder()
 			.setRole(RoleEnum.Owner)
-			.setSubscription(subscription)
+			.setSubscription(mockedSubscription)
 			.build();
 		const guest = new UserEntityBuilder().setRole(RoleEnum.Guest).build();
 
-		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(mockedUser);
 		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(guest);
 
 		const input = new InviteGuestUseCaseBuilder()
-			.setOwnerId(user.id)
+			.setOwnerId(mockedUser.id)
 			.getInput();
 
 		await expect(sut.exec(input)).rejects.toThrow(
@@ -169,5 +173,47 @@ describe(InviteGuestUseCase.name, () => {
 			},
 		});
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.guestEmail);
+	});
+
+	it('should throw a SubscriptionNotFoundError if user current subscription is invalid', async () => {
+		const mockedSubscription = new SubscriptionEntityBuilder().build();
+		const mockedUser = new UserEntityBuilder()
+			.setRole(RoleEnum.Owner)
+			.setSubscription(mockedSubscription)
+			.build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(mockedUser);
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
+		jest
+			.spyOn(envService, 'getKeyOrThrow')
+			.mockReturnValue(NodeEnvEnum.TESTING);
+		jest
+			.spyOn(productsCatalogService, 'getCatalogSessionProduct')
+			.mockReturnValueOnce(left(null));
+
+		const input = new InviteGuestUseCaseBuilder()
+			.setOwnerId(mockedUser.id)
+			.getInput();
+
+		const { subscription: ownerSubscription } = mockedUser.getProps();
+		const { vendorSubscriptionId, vendorProductId } =
+			ownerSubscription!.getProps();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			SubscriptionNotFoundError.byCurrentSubscription(vendorSubscriptionId),
+		);
+		expect(usersRepository.findById).toHaveBeenCalledWith(input.ownerId, {
+			relations: {
+				subscription: true,
+			},
+		});
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.guestEmail);
+		expect(
+			productsCatalogService.getCatalogSessionProduct,
+		).toHaveBeenCalledWith(
+			VendorCatalogProductSectionsEnum.Plans,
+			NodeEnvEnum.TESTING,
+			vendorProductId,
+		);
 	});
 });
