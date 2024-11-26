@@ -9,9 +9,11 @@ import { RoleEnum } from '@/@core/enums/user-role';
 
 import { InvitesRepository } from '@/modules/guests/application/repositories/invites.repository';
 import { InviteGuestUseCase } from '@/modules/guests/application/use-cases/invite-guest.use-case';
+import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
 import { InviteGuestUseCaseBuilder } from '#/__unit__/builders/guests/use-cases/invite-guest.builder';
+import { SubscriptionEntityBuilder } from '#/__unit__/builders/subscriptions/subscription.builder';
 import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(InviteGuestUseCase.name, () => {
@@ -141,5 +143,31 @@ describe(InviteGuestUseCase.name, () => {
 				subscription: true,
 			},
 		});
+	});
+
+	it('should throw a UserAlreadyExistsError if given {guestEmail} is already in use', async () => {
+		const subscription = new SubscriptionEntityBuilder().build();
+		const user = new UserEntityBuilder()
+			.setRole(RoleEnum.Owner)
+			.setSubscription(subscription)
+			.build();
+		const guest = new UserEntityBuilder().setRole(RoleEnum.Guest).build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(guest);
+
+		const input = new InviteGuestUseCaseBuilder()
+			.setOwnerId(user.id)
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			UserAlreadyExistsError.byEmail(input.guestEmail),
+		);
+		expect(usersRepository.findById).toHaveBeenCalledWith(input.ownerId, {
+			relations: {
+				subscription: true,
+			},
+		});
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.guestEmail);
 	});
 });
