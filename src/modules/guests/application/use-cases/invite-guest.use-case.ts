@@ -20,6 +20,7 @@ import { InviteEntity } from '@/modules/guests/domain/invite.entity';
 import { SubscriptionNotFoundError } from '@/modules/subscriptions/application/errors/subscription-not-found.error';
 import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
+import { UserEntity } from '@/modules/users/domain/user.entity';
 
 export type InviteGuestUseCaseInput = {
 	guestName: string;
@@ -56,10 +57,9 @@ export class InviteGuestUseCase
 		});
 		if (!owner) throw new InvalidCredentialsError();
 
-		const { role, subscription: ownerSubscription } = owner.getProps();
+		this.#validateUserCanIssueAnInvitation(owner);
 
-		if (role !== RoleEnum.Owner || !ownerSubscription)
-			throw new InvalidCredentialsError('Not allowed.');
+		const ownerSubscription = owner.getProps().subscription!;
 
 		const guest = await this.usersRepository.findByEmail(guestEmail);
 		if (guest) throw UserAlreadyExistsError.byEmail(guestEmail);
@@ -100,6 +100,16 @@ export class InviteGuestUseCase
 		return {
 			invite,
 		};
+	}
+
+	#validateUserCanIssueAnInvitation(user: UserEntity): void {
+		const { role, subscription } = user.getProps();
+		if (
+			role !== RoleEnum.Owner ||
+			!subscription ||
+			subscription.getProps().status.isCanceled()
+		)
+			throw new InvalidCredentialsError('Not allowed.');
 	}
 
 	async #validateUserGuestsCountLimit(
