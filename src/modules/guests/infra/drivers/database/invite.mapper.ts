@@ -13,7 +13,7 @@ export class PrismaInviteMapper implements Mapper<InviteEntity, Invite> {
 			props: {
 				...model,
 				ownerId: new EntityCuid(model.ownerId),
-				guestId: new EntityCuid(model.guestId),
+				guestId: model.guestId ? new EntityCuid(model.guestId) : null,
 				status: model.status as InviteStatusEnum,
 			},
 			createdAt: model.createdAt,
@@ -27,7 +27,7 @@ export class PrismaInviteMapper implements Mapper<InviteEntity, Invite> {
 			id: entity.id.value,
 			...rest,
 			ownerId: ownerId.value,
-			guestId: guestId?.value || '',
+			guestId: guestId?.value || null,
 			createdAt: entity.createdAt,
 			updatedAt: new Date(),
 		};
