@@ -12,7 +12,10 @@ import { RoleEnum } from '@/@core/enums/user-role';
 
 import { InvitesRepository } from '@/modules/guests/application/repositories/invites.repository';
 import { InviteGuestUseCase } from '@/modules/guests/application/use-cases/invite-guest.use-case';
-import { GuestInvitedDomainEvent } from '@/modules/guests/domain/events/guest-invited.event';
+import {
+	GuestInvitedDomainEvent,
+	GuestInvitedDomainEventDataType,
+} from '@/modules/guests/domain/events/guest-invited.event';
 import { SubscriptionNotFoundError } from '@/modules/subscriptions/application/errors/subscription-not-found.error';
 import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
@@ -269,10 +272,14 @@ describe(InviteGuestUseCase.name, () => {
 				.calls[0][0] as GuestInvitedDomainEvent
 		).data;
 
-		expect(eventEmitterEmitLastCallData).toStrictEqual({
+		expect(eventEmitterEmitLastCallData).toMatchObject({
 			name: input.guestName,
 			email: input.guestEmail,
-		});
+			inviteExpirationTimeInSeconds: 172_800,
+			ownerId: mockedUser.id.value,
+			// inviteId
+			ownerName: mockedUser.getProps().name,
+		} as GuestInvitedDomainEventDataType);
 		expect(invite).toBeDefined();
 		expect(invite.getProps().ownerId).toStrictEqual(mockedUser.id);
 	});
