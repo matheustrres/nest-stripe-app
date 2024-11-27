@@ -15,6 +15,7 @@ export class VendorPlanBuilder {
 		priceId: 'price_1QJLVMP7QrM0bVUXHRcs67nS',
 		prodId: 'prod_RBixtKeGEZ6yxC',
 		tokensPerCycle: ExecutiveMonthlyTokens,
+		allowedMembers: 20,
 	};
 
 	getProps(): FullVendorPlanDetails {

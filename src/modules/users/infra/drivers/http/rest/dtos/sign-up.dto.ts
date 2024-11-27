@@ -3,7 +3,7 @@ import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 import { SignInBodyDto } from './sign-in.dto';
 
-import { Role } from '@/@core/enums/user-role';
+import { RoleEnum } from '@/@core/enums/user-role';
 
 import { SignUpUseCaseInput } from '@/modules/users/application/use-cases/sign-up.use-case';
 
@@ -19,12 +19,12 @@ export class SignUpBodyDto extends SignInBodyDto implements SignUpUseCaseInput {
 
 	@ApiProperty({
 		type: 'string',
-		enum: Role,
+		enum: RoleEnum,
 		required: false,
-		example: Role.User,
+		example: RoleEnum.User,
 	})
 	@IsString()
-	@IsEnum(Role)
+	@IsEnum(RoleEnum)
 	@IsOptional()
-	role?: Role;
+	role?: RoleEnum;
 }

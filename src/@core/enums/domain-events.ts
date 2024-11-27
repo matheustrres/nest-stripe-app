@@ -1,5 +1,5 @@
-export enum UserDomainEventsEnum {
-	AccountCreated = 'user.account_created',
+export enum GuestDomainEventsEnum {
+	Invited = 'guest.invited',
 }
 
 export enum SubscriptionDomainEventsEnum {
@@ -7,6 +7,11 @@ export enum SubscriptionDomainEventsEnum {
 	RefundRequest = 'subscription.refund_request',
 }
 
+export enum UserDomainEventsEnum {
+	AccountCreated = 'user.account_created',
+}
+
 export type DomainEventsEnum =
-	| UserDomainEventsEnum
-	| SubscriptionDomainEventsEnum;
+	| GuestDomainEventsEnum
+	| SubscriptionDomainEventsEnum
+	| UserDomainEventsEnum;

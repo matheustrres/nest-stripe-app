@@ -1,4 +1,3 @@
-import { AdaptersModule } from '@/infra/adapters/adapters.module';
 import { Module } from '@nestjs/common';
 
 import { UsersRepository } from './application/repositories/users.repository';
@@ -8,6 +7,8 @@ import { SignUpUseCase } from './application/use-cases/sign-up.use-case';
 import { PrismaUsersRepository } from './infra/drivers/database/users.repository';
 import { UsersController } from './infra/drivers/http/rest/users.controller';
 import { UserAccountCreatedDomainEventListener } from './infra/events/listeners/account-created.listener';
+
+import { AdaptersModule } from '@/infra/adapters/adapters.module';
 
 import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 

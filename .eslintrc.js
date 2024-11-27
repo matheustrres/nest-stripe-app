@@ -30,6 +30,7 @@ module.exports = {
           "parent",
           "/^@/app/",
           "/^@/@core/",
+          "/^@/infra/",
           "/^@/modules/",
           "/^@/shared/",
           "/^#/",

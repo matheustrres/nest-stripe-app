@@ -9,6 +9,7 @@ export type FindOptions = {
 };
 
 export abstract class UsersRepository extends Repository<UserEntity> {
+	abstract countUserGuests(userId: string): Promise<number>;
 	abstract findById(
 		id: string,
 		findOptions?: FindOptions,

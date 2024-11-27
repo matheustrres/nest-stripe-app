@@ -1,4 +1,5 @@
 export enum ApiPathsEnum {
-	Users = 'users',
+	Guests = 'guests',
 	Subscriptions = 'subscriptions',
+	Users = 'users',
 }

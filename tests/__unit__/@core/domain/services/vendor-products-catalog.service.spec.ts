@@ -42,6 +42,7 @@ describe(VendorProductsCatalogService.name, () => {
 					priceId: 'price_1QJLRSP7QrM0bVUXLLVADrvV',
 					prodId: 'prod_RBitgXwWrWB2Fz',
 					tokensPerCycle: 3_100,
+					allowedMembers: 3,
 				});
 			});
 		});

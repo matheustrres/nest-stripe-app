@@ -11,13 +11,13 @@ import { RefundSubscriptionDomainEvent } from '@/modules/subscriptions/domain/ev
 
 import { OnDomainEvent } from '@/shared/utils/decorators/on-domain-event';
 import { formatCurrencyFromCents } from '@/shared/utils/funcs/format-currency';
-
-// eslint-disable-next-line import-helpers/order-imports
-import { SubscriptionRefundedTemplate } from '$/templates/subscription-refunded';
 import {
 	convertMilliseconds,
 	toMilliseconds,
 } from '@/shared/utils/funcs/milliseconds';
+
+// eslint-disable-next-line import-helpers/order-imports
+import { SubscriptionRefundedTemplate } from '$/templates/subscription-refunded';
 
 @Injectable()
 export class RefundSubscriptionDomainEventListener {
@@ -67,7 +67,7 @@ export class RefundSubscriptionDomainEventListener {
 			)}`,
 		);
 		this.retryService.removeRetry(retryKey);
-		this.mailingService.sendMail({
+		await this.mailingService.sendMail({
 			to: customerEmail,
 			from: 'StripeApp <onboarding@resend.dev>',
 			subject: 'Subscription refunded',

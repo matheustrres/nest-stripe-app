@@ -1,5 +1,5 @@
 import { UserFreeTrialTokens } from '@/@core/domain/constants/tokens-per-plan';
-import { Role } from '@/@core/enums/user-role';
+import { RoleEnum } from '@/@core/enums/user-role';
 
 import { UserEntity } from '@/modules/users/domain/user.entity';
 
@@ -20,7 +20,7 @@ describe(UserEntity.name, () => {
 		expect(user).toBeDefined();
 		expect(name).toBe('John Doe');
 		expect(email).toBe('john.doe@gmail.com');
-		expect(role).toEqual(Role.User);
+		expect(role).toEqual(RoleEnum.User);
 		expect(tokens.amount).toEqual(UserFreeTrialTokens);
 	});
 

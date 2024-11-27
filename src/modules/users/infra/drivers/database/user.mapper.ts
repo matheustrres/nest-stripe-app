@@ -2,7 +2,7 @@ import { Subscription, User } from '@prisma/client';
 
 import { EntityCuid } from '@/@core/domain/entity-cuid';
 import { Mapper } from '@/@core/domain/mapper';
-import { Role } from '@/@core/enums/user-role';
+import { RoleEnum } from '@/@core/enums/user-role';
 
 import { PrismaSubscriptionMapper } from '@/modules/subscriptions/infra/drivers/database/subscription.mapper';
 import { UserEntity } from '@/modules/users/domain/user.entity';
@@ -22,7 +22,7 @@ export class PrismaUserMapper implements Mapper<UserEntity, User> {
 			id: new EntityCuid(model.id),
 			props: {
 				...model,
-				role: model.role as Role,
+				role: model.role as RoleEnum,
 				tokens: new UserTokensValueObject(model.tokens),
 				...(!!subscriptionToMap && {
 					subscription: new PrismaSubscriptionMapper().toDomain(
