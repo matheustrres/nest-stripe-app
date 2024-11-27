@@ -36,6 +36,8 @@ export type InviteGuestUseCaseOutput = {
 export class InviteGuestUseCase
 	implements UseCase<InviteGuestUseCaseInput, InviteGuestUseCaseOutput>
 {
+	readonly #TWO_DAYS_INVITE_TOKEN_EXPIRATION_TIME_IN_SECS = 172_800;
+
 	constructor(
 		private readonly dateService: DateService,
 		private readonly envService: EnvService,
@@ -84,7 +86,7 @@ export class InviteGuestUseCase
 		);
 
 		const invite = InviteEntity.createNew({
-			expiresAt: this.#getTokenExpirationDate(),
+			expiresAt: this.#getInviteExpirationDate(),
 			ownerId: owner.id,
 			status: InviteStatusEnum.Pending,
 		});
@@ -94,6 +96,11 @@ export class InviteGuestUseCase
 			new GuestInvitedDomainEvent({
 				name: guestName,
 				email: guestEmail,
+				inviteExpirationTimeInSeconds:
+					this.#TWO_DAYS_INVITE_TOKEN_EXPIRATION_TIME_IN_SECS,
+				inviteId: invite.id.value,
+				ownerId: owner.id.value,
+				ownerName: owner.getProps().name,
 			}),
 		);
 
@@ -121,12 +128,11 @@ export class InviteGuestUseCase
 			throw InvalidInvitationActionError.byExceededPlanMaxInvitations();
 	}
 
-	#getTokenExpirationDate(): Date {
-		const TWO_DAYS_IN_SECS = 172_800;
-		const tokenExpiresAt = this.dateService.now();
+	#getInviteExpirationDate(): Date {
+		const now = this.dateService.now();
 		return this.dateService.addSeconds({
-			amount: TWO_DAYS_IN_SECS,
-			date: tokenExpiresAt,
+			amount: this.#TWO_DAYS_INVITE_TOKEN_EXPIRATION_TIME_IN_SECS,
+			date: now,
 		});
 	}
 }
