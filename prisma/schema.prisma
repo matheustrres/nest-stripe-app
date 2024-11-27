@@ -32,8 +32,8 @@ model Invite {
   status    String
   ownerId   String   @map("owner_id")
   owner     User     @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
-  guest     Guest    @relation(fields: [guestId], references: [id])
-  guestId   String   @unique @map("guest_id")
+  guest     Guest?   @relation(fields: [guestId], references: [id])
+  guestId   String?  @unique @map("guest_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
