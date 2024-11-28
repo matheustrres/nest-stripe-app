@@ -11,10 +11,13 @@ export type InviteEntityProps = {
 	guestId: EntityCuid | null;
 };
 
-type OptionalInviteEntityProps = Optional<InviteEntityProps, 'guestId'>;
+type OptionalInviteEntityProps = Optional<
+	InviteEntityProps,
+	'guestId' | 'status'
+>;
 type InviteEntityConstructorProps =
 	CreateEntityProps<OptionalInviteEntityProps>;
-type UpdateInviteEntityProps = Partial<InviteEntityProps>;
+type UpdateInviteEntityProps = Omit<Partial<InviteEntityProps>, 'status'>;
 
 export class InviteEntity extends Entity<InviteEntityProps> {
 	private constructor({ id, props, createdAt }: InviteEntityConstructorProps) {
@@ -23,6 +26,7 @@ export class InviteEntity extends Entity<InviteEntityProps> {
 			props: {
 				...props,
 				guestId: props.guestId ?? null,
+				status: props.status ?? InviteStatusEnum.Pending,
 			},
 			createdAt,
 		});
@@ -31,10 +35,7 @@ export class InviteEntity extends Entity<InviteEntityProps> {
 	static createNew(props: OptionalInviteEntityProps): InviteEntity {
 		return new InviteEntity({
 			id: new EntityCuid(),
-			props: {
-				...props,
-				status: InviteStatusEnum.Pending,
-			},
+			props,
 			createdAt: new Date(),
 		});
 	}
@@ -51,14 +52,10 @@ export class InviteEntity extends Entity<InviteEntityProps> {
 	}
 
 	acceptInvite(): void {
-		this.update({
-			status: InviteStatusEnum.Accepted,
-		});
+		this.props.status = InviteStatusEnum.Accepted;
 	}
 
 	rejectInvite(): void {
-		this.update({
-			status: InviteStatusEnum.Rejected,
-		});
+		this.props.status = InviteStatusEnum.Rejected;
 	}
 }

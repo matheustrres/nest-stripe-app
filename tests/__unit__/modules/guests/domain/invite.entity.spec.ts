@@ -6,7 +6,7 @@ import { InviteEntityBuilder } from '#/__unit__/builders/guests/invite.builder';
 describe(InviteEntity.name, () => {
 	it('should create a new invite', () => {
 		const invite = new InviteEntityBuilder()
-			.setStatus(InviteStatusEnum.Rejected)
+			.setStatus(InviteStatusEnum.Pending)
 			.build();
 
 		expect(invite).toBeDefined();

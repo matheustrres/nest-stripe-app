@@ -150,8 +150,8 @@ export class GuestSignUpUseCase
 
 		invite.update({
 			guestId: guest.id,
-			status: InviteStatusEnum.Accepted,
 		});
+		invite.acceptInvite();
 		await this.invitesRepository.upsert(invite);
 	}
 }
