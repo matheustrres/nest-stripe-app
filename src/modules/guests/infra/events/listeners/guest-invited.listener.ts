@@ -4,6 +4,7 @@ import { MailingService } from '@/@core/application/services/mailing.service';
 import { TokenizationService } from '@/@core/application/services/tokenization.service';
 import { GuestDomainEventsEnum } from '@/@core/enums/domain-events';
 import { RoleEnum } from '@/@core/enums/user-role';
+import { GuestSignUpTokenSubType } from '@/@core/types';
 
 import { GuestInvitedDomainEvent } from '@/modules/guests/domain/events/guest-invited.event';
 
@@ -34,7 +35,7 @@ export class GuestInvitedDomainEventListener {
 		const token = await this.tokenizationService.sign(
 			{
 				role: RoleEnum.Guest,
-				sub: Buffer.from(`${ownerId}:${inviteId}:${email}`).toString('base64'),
+				sub: this.#bufferizeTokenSubData(`${ownerId}:${inviteId}:${email}`),
 			},
 			`${inviteExpirationTimeInSeconds}s`,
 		);
@@ -53,5 +54,9 @@ export class GuestInvitedDomainEventListener {
 				ownerName,
 			}),
 		});
+	}
+
+	#bufferizeTokenSubData(sub: GuestSignUpTokenSubType): string {
+		return Buffer.from(sub).toString('base64');
 	}
 }

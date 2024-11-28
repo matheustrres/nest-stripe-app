@@ -8,3 +8,9 @@ export type JwtPayload = {
 };
 
 export type WithoutUserId<T> = Omit<T, 'userId'>;
+
+type OwnerId = string;
+type InviteId = string;
+type GuestEmail = string;
+
+export type GuestSignUpTokenSubType = `${OwnerId}:${InviteId}:${GuestEmail}`;
