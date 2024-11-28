@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
 import { AlphanumericCodeService } from '@/@core/application/services/alpha-numeric-code.service';
-import { HashingService } from '@/@core/application/services/hashing.service';
 import { UseCase } from '@/@core/application/use-case';
 import { EventEmitter } from '@/@core/domain/events/emitter/event-emitter';
 import { RoleEnum } from '@/@core/enums/user-role';
 
 import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
+import { UsersService } from '@/modules/users/application/services/users.service';
 import { UserAccountCreatedDomainEvent } from '@/modules/users/domain/events/account-created.event';
 import { UserEntity } from '@/modules/users/domain/user.entity';
 
@@ -27,10 +27,10 @@ export class SignUpUseCase
 	implements UseCase<SignUpUseCaseInput, SignUpUseCaseOutput>
 {
 	constructor(
-		private readonly usersRepository: UsersRepository,
-		private readonly hashingService: HashingService,
-		private readonly eventEmitter: EventEmitter,
 		private readonly alphanumericCodeService: AlphanumericCodeService,
+		private readonly eventEmitter: EventEmitter,
+		private readonly usersRepository: UsersRepository,
+		private readonly usersService: UsersService,
 	) {}
 
 	async exec({
@@ -43,15 +43,12 @@ export class SignUpUseCase
 			await this.usersRepository.findByEmail(email);
 		if (userAlreadyExistsByEmail) throw UserAlreadyExistsError.byEmail(email);
 
-		const hashedPassword = await this.hashingService.hash(password);
-		const user = UserEntity.createNew({
+		const user = await this.usersService.createUser({
 			name,
 			email,
-			password: hashedPassword,
+			password,
 			role,
 		});
-		await this.usersRepository.upsert(user);
-
 		const userProps = user.getProps();
 
 		const authCode = await this.alphanumericCodeService.genCode(5);
