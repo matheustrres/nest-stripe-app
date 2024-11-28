@@ -13,6 +13,7 @@ import { InvitesRepository } from '@/modules/guests/application/repositories/inv
 import { GuestSignUpUseCase } from '@/modules/guests/application/use-cases/sign-up.use-case';
 import { InviteStatusEnum } from '@/modules/guests/domain/enums/invite-status';
 import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
+import { UserNotFoundError } from '@/modules/users/application/errors/user-not-found.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 import { UsersService } from '@/modules/users/application/services/users.service';
 
@@ -150,7 +151,7 @@ describe(GuestSignUpUseCase.name, () => {
 		expect(tokenizationService.decode).toHaveBeenCalledWith('alternative_jwt');
 	});
 
-	it('should throw a UserAlreadyExistsError if extracted email from decoded token sub is already in use', async () => {
+	it('should throw a UserAlreadyExistsError if extracted email from decoded token sub is already in use {guestEmail}', async () => {
 		const commonEmail = 'john.doe@gmail.com';
 
 		const user = new UserEntityBuilder().setEmail(commonEmail).build();
@@ -186,7 +187,7 @@ describe(GuestSignUpUseCase.name, () => {
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(commonEmail);
 	});
 
-	it('should throw a InviteNotFoundError if no invite is found from decoded token sub data', async () => {
+	it('should throw a InviteNotFoundError if no invite is found from decoded token sub data {inviteId}', async () => {
 		const commonEmail = 'john.doe@gmail.com';
 
 		const user = new UserEntityBuilder().setEmail(commonEmail).build();
@@ -304,5 +305,46 @@ describe(GuestSignUpUseCase.name, () => {
 		expect(tokenizationService.decode).toHaveBeenCalledWith('alternative_jwt');
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(commonEmail);
 		expect(invitesRepository.findOne).toHaveBeenCalledWith(invite.id.value);
+	});
+
+	it('should throw a UserNotFoundError if no owner is found from decoded token sub data {ownerId}', async () => {
+		const commonEmail = 'john.doe@gmail.com';
+
+		const user = new UserEntityBuilder().setEmail(commonEmail).build();
+		const owner = new UserEntityBuilder().build();
+		const guest = new UserEntityBuilder()
+			.setEmail(user.getProps().email)
+			.build();
+		const invite = new InviteEntityBuilder()
+			.setGuestId(guest.id)
+			.setOwnerId(owner.id)
+			.setStatus(InviteStatusEnum.Pending)
+			.build();
+
+		jest.spyOn(tokenizationService, 'verify').mockReturnValueOnce(true);
+		jest.spyOn(tokenizationService, 'decode').mockReturnValueOnce({
+			role: RoleEnum.Guest,
+			sub: bufferizeTokenSub(
+				owner.id.value,
+				invite.id.value,
+				guest.getProps().email,
+			),
+		} as JwtPayload);
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null); // guest
+		jest.spyOn(invitesRepository, 'findOne').mockResolvedValueOnce(invite);
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(null); // owner
+
+		const input = new GuestSignUpUseCaseBuilder()
+			.setToken('alternative_jwt')
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			UserNotFoundError.byId(owner.id.value),
+		);
+		expect(tokenizationService.verify).toHaveBeenCalledWith('alternative_jwt');
+		expect(tokenizationService.decode).toHaveBeenCalledWith('alternative_jwt');
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(commonEmail);
+		expect(invitesRepository.findOne).toHaveBeenCalledWith(invite.id.value);
+		expect(usersRepository.findById).toHaveBeenCalledWith(owner.id.value);
 	});
 });
