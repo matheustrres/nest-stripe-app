@@ -1,11 +1,12 @@
 import { Test } from '@nestjs/testing';
 
 import { AlphanumericCodeService } from '@/@core/application/services/alpha-numeric-code.service';
-import { HashingService } from '@/@core/application/services/hashing.service';
 import { EventEmitter } from '@/@core/domain/events/emitter/event-emitter';
+import { RoleEnum } from '@/@core/enums/user-role';
 
 import { UserAlreadyExistsError } from '@/modules/users/application/errors/user-already-exists.error';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
+import { UsersService } from '@/modules/users/application/services/users.service';
 import { SignUpUseCase } from '@/modules/users/application/use-cases/sign-up.use-case';
 import { UserAccountCreatedDomainEvent } from '@/modules/users/domain/events/account-created.event';
 
@@ -13,26 +14,19 @@ import { SignUpUseCaseBuilder } from '#/__unit__/builders/users/use-cases/sign-u
 import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(SignUpUseCase.name, () => {
-	let usersRepository: UsersRepository;
-	let hashingService: HashingService;
-	let eventEmitter: EventEmitter;
 	let alphanumericCodeService: AlphanumericCodeService;
+	let eventEmitter: EventEmitter;
+	let usersRepository: UsersRepository;
+	let usersService: UsersService;
 	let sut: SignUpUseCase;
 
 	beforeEach(async () => {
 		const moduleRef = await Test.createTestingModule({
 			providers: [
 				{
-					provide: UsersRepository,
+					provide: AlphanumericCodeService,
 					useValue: {
-						findByEmail: jest.fn(),
-						upsert: jest.fn(),
-					},
-				},
-				{
-					provide: HashingService,
-					useValue: {
-						hash: jest.fn(),
+						genCode: jest.fn(),
 					},
 				},
 				{
@@ -42,36 +36,42 @@ describe(SignUpUseCase.name, () => {
 					},
 				},
 				{
-					provide: AlphanumericCodeService,
+					provide: UsersRepository,
 					useValue: {
-						genCode: jest.fn(),
+						findByEmail: jest.fn(),
+						upsert: jest.fn(),
+					},
+				},
+				{
+					provide: UsersService,
+					useValue: {
+						createUser: jest.fn(),
 					},
 				},
 				SignUpUseCase,
 			],
 		}).compile();
 
-		usersRepository = moduleRef.get(UsersRepository);
-		hashingService = moduleRef.get(HashingService);
-		eventEmitter = moduleRef.get(EventEmitter);
 		alphanumericCodeService = moduleRef.get(AlphanumericCodeService);
+		eventEmitter = moduleRef.get(EventEmitter);
+		usersRepository = moduleRef.get(UsersRepository);
+		usersService = moduleRef.get(UsersService);
 		sut = moduleRef.get(SignUpUseCase);
 	});
 
 	it('should be defined', () => {
-		expect(usersRepository.findByEmail).toBeDefined();
-		expect(usersRepository.upsert).toBeDefined();
-		expect(hashingService.hash).toBeDefined();
-		expect(eventEmitter.emit).toBeDefined();
 		expect(alphanumericCodeService.genCode).toBeDefined();
-		expect(sut).toBeDefined();
+		expect(eventEmitter.emit).toBeDefined();
+		expect(usersRepository.findByEmail).toBeDefined();
+		expect(usersService.createUser).toBeDefined();
+		expect(sut.exec).toBeDefined();
 	});
 
 	it('should throw a UserAlreadyExistsError if incoming email address is already in use', async () => {
 		const user = new UserEntityBuilder().build();
 
 		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(user);
-		jest.spyOn(hashingService, 'hash');
+		jest.spyOn(usersService, 'createUser');
 		jest.spyOn(usersRepository, 'upsert');
 
 		const { email } = user.getProps();
@@ -82,18 +82,20 @@ describe(SignUpUseCase.name, () => {
 			UserAlreadyExistsError.byEmail(email),
 		);
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(email);
-		expect(hashingService.hash).not.toHaveBeenCalled();
+		expect(usersService.createUser).not.toHaveBeenCalled();
 		expect(usersRepository.upsert).not.toHaveBeenCalled();
 	});
 
 	it('should sign up a user', async () => {
-		const user = new UserEntityBuilder().build();
-		const hashedPassword = 'supersecrethashedpassword';
+		const user = new UserEntityBuilder()
+			.setName('John Doe')
+			.setEmail('jonh.doe@gmail.com')
+			.setRole(RoleEnum.Owner)
+			.build();
 		const mockedAlphanumericCode = 'AB1C2';
 
 		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
-		jest.spyOn(hashingService, 'hash').mockResolvedValueOnce(hashedPassword);
-		jest.spyOn(usersRepository, 'upsert');
+		jest.spyOn(usersService, 'createUser').mockResolvedValueOnce(user);
 		jest
 			.spyOn(alphanumericCodeService, 'genCode')
 			.mockResolvedValueOnce(mockedAlphanumericCode);
@@ -103,18 +105,24 @@ describe(SignUpUseCase.name, () => {
 		const input = new SignUpUseCaseBuilder()
 			.setName(userProps.name)
 			.setEmail(userProps.email)
+			.setPassword('my_password')
+			.setRole(userProps.role)
 			.getInput();
 
 		const { user: newUser } = await sut.exec(input);
 		const newUserProps = newUser.getProps();
 
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(input.email);
-		expect(hashingService.hash).toHaveBeenCalledWith(input.password);
-		expect(usersRepository.upsert).toHaveBeenCalled();
+		expect(usersService.createUser).toHaveBeenCalledWith({
+			name: userProps.name,
+			email: userProps.email,
+			password: 'my_password',
+			role: RoleEnum.Owner,
+		});
 		expect(newUser).toBeDefined();
 		expect(newUserProps.name).toEqual(userProps.name);
 		expect(newUserProps.email).toEqual(userProps.email);
-		expect(newUserProps.password).toBe(hashedPassword);
+		expect(newUserProps.role).toBe(RoleEnum.Owner);
 		expect(alphanumericCodeService.genCode).toHaveBeenCalledWith(5);
 		expect(eventEmitter.emit).toHaveBeenCalledWith(
 			expect.any(UserAccountCreatedDomainEvent),

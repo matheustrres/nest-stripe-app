@@ -1,3 +1,5 @@
+import { RoleEnum } from '@/@core/enums/user-role';
+
 import {
 	SignUpUseCaseInput,
 	SignUpUseCaseOutput,
@@ -29,6 +31,11 @@ export class SignUpUseCaseBuilder {
 
 	setPassword(password: string): this {
 		this.#input.password = password;
+		return this;
+	}
+
+	setRole(role: RoleEnum): this {
+		this.#input.role = role;
 		return this;
 	}
 

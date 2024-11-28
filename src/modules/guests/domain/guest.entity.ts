@@ -4,7 +4,7 @@ import { EntityCuid } from '@/@core/domain/entity-cuid';
 export type GuestEntityProps = {
 	ownerId: EntityCuid;
 	userId: EntityCuid;
-	inviteId: EntityCuid;
+	inviteId: EntityCuid | null;
 };
 
 type GuestEntityConstructorProps = CreateEntityProps<GuestEntityProps>;
