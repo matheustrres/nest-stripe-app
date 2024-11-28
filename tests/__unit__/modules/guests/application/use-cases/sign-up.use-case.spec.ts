@@ -262,4 +262,47 @@ describe(GuestSignUpUseCase.name, () => {
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(commonEmail);
 		expect(invitesRepository.findOne).toHaveBeenCalledWith(invite.id.value);
 	});
+
+	it('should throw a InvalidGuestSignUpActionError if invite expiration time has passed the deadline', async () => {
+		const commonEmail = 'john.doe@gmail.com';
+
+		const threeDaysAgo = new Date();
+		threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+		const user = new UserEntityBuilder().setEmail(commonEmail).build();
+		const owner = new UserEntityBuilder().build();
+		const guest = new UserEntityBuilder()
+			.setEmail(user.getProps().email)
+			.build();
+		const invite = new InviteEntityBuilder()
+			.setGuestId(guest.id)
+			.setOwnerId(owner.id)
+			.setStatus(InviteStatusEnum.Pending)
+			.setExpiresAt(threeDaysAgo)
+			.build();
+
+		jest.spyOn(tokenizationService, 'verify').mockReturnValueOnce(true);
+		jest.spyOn(tokenizationService, 'decode').mockReturnValueOnce({
+			role: RoleEnum.Guest,
+			sub: bufferizeTokenSub(
+				owner.id.value,
+				invite.id.value,
+				guest.getProps().email,
+			),
+		} as JwtPayload);
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
+		jest.spyOn(invitesRepository, 'findOne').mockResolvedValueOnce(invite);
+
+		const input = new GuestSignUpUseCaseBuilder()
+			.setToken('alternative_jwt')
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			InvalidGuestSignUpActionError.byInviteExpirationTimeOutOfDate(),
+		);
+		expect(tokenizationService.verify).toHaveBeenCalledWith('alternative_jwt');
+		expect(tokenizationService.decode).toHaveBeenCalledWith('alternative_jwt');
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(commonEmail);
+		expect(invitesRepository.findOne).toHaveBeenCalledWith(invite.id.value);
+	});
 });
