@@ -3,7 +3,8 @@ import { Test } from '@nestjs/testing';
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { DateService } from '@/@core/application/services/date.service';
 import { TokenizationService } from '@/@core/application/services/tokenization.service';
-import { JwtPayload } from '@/@core/types';
+import { RoleEnum } from '@/@core/enums/user-role';
+import { GuestSignUpTokenSubType, JwtPayload } from '@/@core/types';
 
 import { GuestsRepository } from '@/modules/guests/application/repositories/guests.repository';
 import { InvitesRepository } from '@/modules/guests/application/repositories/invites.repository';
@@ -105,6 +106,24 @@ describe(GuestSignUpUseCase.name, () => {
 		jest
 			.spyOn(tokenizationService, 'decode')
 			.mockReturnValueOnce({} as JwtPayload);
+
+		const input = new GuestSignUpUseCaseBuilder()
+			.setToken('alternative_jwt')
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			InvalidCredentialsError.byAuthenticationToken(),
+		);
+		expect(tokenizationService.verify).toHaveBeenCalledWith('alternative_jwt');
+		expect(tokenizationService.decode).toHaveBeenCalledWith('alternative_jwt');
+	});
+
+	it('should throw a InvalidCredentialsError if token sub decoding returns invalid data', async () => {
+		jest.spyOn(tokenizationService, 'verify').mockReturnValueOnce(true);
+		jest.spyOn(tokenizationService, 'decode').mockReturnValueOnce({
+			role: RoleEnum.Guest,
+			sub: '' as GuestSignUpTokenSubType,
+		} as JwtPayload);
 
 		const input = new GuestSignUpUseCaseBuilder()
 			.setToken('alternative_jwt')
