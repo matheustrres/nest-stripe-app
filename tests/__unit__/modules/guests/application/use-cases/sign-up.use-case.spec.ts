@@ -347,4 +347,56 @@ describe(GuestSignUpUseCase.name, () => {
 		expect(invitesRepository.findOne).toHaveBeenCalledWith(invite.id.value);
 		expect(usersRepository.findById).toHaveBeenCalledWith(owner.id.value);
 	});
+
+	it('should sign up a guest', async () => {
+		const commonEmail = 'john.doe@gmail.com';
+
+		const user = new UserEntityBuilder().setEmail(commonEmail).build();
+		const owner = new UserEntityBuilder().build();
+		const guest = new UserEntityBuilder()
+			.setEmail(user.getProps().email)
+			.build();
+		const invite = new InviteEntityBuilder()
+			.setGuestId(guest.id)
+			.setOwnerId(owner.id)
+			.setStatus(InviteStatusEnum.Pending)
+			.build();
+
+		jest.spyOn(tokenizationService, 'verify').mockReturnValueOnce(true);
+		jest.spyOn(tokenizationService, 'decode').mockReturnValueOnce({
+			role: RoleEnum.Guest,
+			sub: bufferizeTokenSub(
+				owner.id.value,
+				invite.id.value,
+				guest.getProps().email,
+			),
+		} as JwtPayload);
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null); // guest
+		jest.spyOn(invitesRepository, 'findOne').mockResolvedValueOnce(invite);
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(owner);
+		jest.spyOn(usersService, 'createUser').mockResolvedValueOnce(user);
+		jest.spyOn(guestsRepository, 'upsert');
+		jest.spyOn(invitesRepository, 'upsert');
+
+		const input = new GuestSignUpUseCaseBuilder()
+			.setToken('alternative_jwt')
+			.setName(guest.getProps().name)
+			.getInput();
+
+		expect(invite.getProps().status).toBe(InviteStatusEnum.Pending);
+
+		const { user: guestUser } = await sut.exec(input);
+
+		expect(guestUser).toBeDefined();
+		expect(tokenizationService.verify).toHaveBeenCalledWith('alternative_jwt');
+		expect(tokenizationService.decode).toHaveBeenCalledWith('alternative_jwt');
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(commonEmail);
+		expect(invitesRepository.findOne).toHaveBeenCalledWith(invite.id.value);
+		expect(usersRepository.findById).toHaveBeenCalledWith(owner.id.value);
+		expect(guestsRepository.upsert).toHaveBeenCalled();
+		expect(invitesRepository.upsert).toHaveBeenCalled();
+		expect(invite.getProps().status).toBe(InviteStatusEnum.Accepted);
+		expect(invite.getProps().guestId).toStrictEqual(guest.id);
+		expect(invite.getProps().ownerId).toStrictEqual(owner.id);
+	});
 });
