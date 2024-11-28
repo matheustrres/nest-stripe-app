@@ -6,6 +6,7 @@ import { TokenizationService } from '@/@core/application/services/tokenization.s
 import { RoleEnum } from '@/@core/enums/user-role';
 import { GuestSignUpTokenSubType, JwtPayload } from '@/@core/types';
 
+import { InviteNotFoundError } from '@/modules/guests/application/errors/invite-not-found.error';
 import { GuestsRepository } from '@/modules/guests/application/repositories/guests.repository';
 import { InvitesRepository } from '@/modules/guests/application/repositories/invites.repository';
 import { GuestSignUpUseCase } from '@/modules/guests/application/use-cases/sign-up.use-case';
@@ -181,5 +182,43 @@ describe(GuestSignUpUseCase.name, () => {
 		expect(tokenizationService.verify).toHaveBeenCalledWith('alternative_jwt');
 		expect(tokenizationService.decode).toHaveBeenCalledWith('alternative_jwt');
 		expect(usersRepository.findByEmail).toHaveBeenCalledWith(commonEmail);
+	});
+
+	it('should throw a InviteNotFoundError if no invite is found from decoded token sub data', async () => {
+		const commonEmail = 'john.doe@gmail.com';
+
+		const user = new UserEntityBuilder().setEmail(commonEmail).build();
+		const owner = new UserEntityBuilder().build();
+		const guest = new UserEntityBuilder()
+			.setEmail(user.getProps().email)
+			.build();
+		const invite = new InviteEntityBuilder()
+			.setGuestId(guest.id)
+			.setOwnerId(owner.id)
+			.build();
+
+		jest.spyOn(tokenizationService, 'verify').mockReturnValueOnce(true);
+		jest.spyOn(tokenizationService, 'decode').mockReturnValueOnce({
+			role: RoleEnum.Guest,
+			sub: bufferizeTokenSub(
+				owner.id.value,
+				invite.id.value,
+				guest.getProps().email,
+			),
+		} as JwtPayload);
+		jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
+		jest.spyOn(invitesRepository, 'findOne').mockResolvedValueOnce(null);
+
+		const input = new GuestSignUpUseCaseBuilder()
+			.setToken('alternative_jwt')
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			InviteNotFoundError.byId(invite.id.value),
+		);
+		expect(tokenizationService.verify).toHaveBeenCalledWith('alternative_jwt');
+		expect(tokenizationService.decode).toHaveBeenCalledWith('alternative_jwt');
+		expect(usersRepository.findByEmail).toHaveBeenCalledWith(commonEmail);
+		expect(invitesRepository.findOne).toHaveBeenCalledWith(invite.id.value);
 	});
 });
