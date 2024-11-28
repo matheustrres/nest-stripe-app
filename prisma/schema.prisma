@@ -16,14 +16,32 @@ model User {
   role               String
   tokens             Float         @default(0)
   subscription       Subscription?
+  invites            Invite[]      @relation("Owner")
+  Invite             Invite?       @relation("Guest")
+  workspacesAsOwner  Workspace[]   @relation("Owner")
+  workspacesAsGuest  Workspace[]   @relation("Guests")
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
-  guest              Guest?        @relation("Guest")
-  guests             Guest[]       @relation("Owner")
-  invites            Invite[]      @relation("Owner")
 
   @@index([email])
   @@map("users")
+}
+
+model Workspace {
+  id         String    @id @default(cuid())
+  name       String    @unique
+  status     String // active archived deleted
+  tags       String[]
+  owner      User      @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId    String    @map("owner_id")
+  users      User[]    @relation("Guests")
+  deletedAt  DateTime? @map("deleted_at")
+  archivedAt DateTime? @map("archived_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@index([name, ownerId])
+  @@map("workspaces")
 }
 
 model Invite {
@@ -32,7 +50,7 @@ model Invite {
   status    String
   ownerId   String   @map("owner_id")
   owner     User     @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
-  guest     Guest?   @relation(fields: [guestId], references: [id])
+  guest     User?    @relation("Guest", fields: [guestId], references: [id])
   guestId   String?  @unique @map("guest_id")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -43,15 +61,9 @@ model Invite {
 
 model Guest {
   id        String   @id @default(cuid())
-  user      User     @relation("Guest", fields: [userId], references: [id], onDelete: Cascade)
-  userId    String   @unique @map("user_id")
-  owner     User     @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId   String   @map("owner_id")
-  invite    Invite?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([userId, ownerId])
   @@map("guests")
 }
 
