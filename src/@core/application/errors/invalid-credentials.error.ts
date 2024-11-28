@@ -9,7 +9,13 @@ export class InvalidCredentialsError extends AppError {
 		});
 	}
 
-	static byValidationCode() {
+	static byValidationCode(): InvalidCredentialsError {
 		return new InvalidCredentialsError('Invalid or expired validation code.');
+	}
+
+	static byAuthenticationToken(): InvalidCredentialsError {
+		return new InvalidCredentialsError(
+			'Invalid or expired authentication token. Please, try again later or contact the support.',
+		);
 	}
 }

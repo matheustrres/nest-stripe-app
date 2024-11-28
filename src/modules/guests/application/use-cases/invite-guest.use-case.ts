@@ -12,7 +12,7 @@ import { EventEmitter } from '@/@core/domain/events/emitter/event-emitter';
 import { VendorProductsCatalogService } from '@/@core/domain/services/vendor-products-catalog.service';
 import { RoleEnum } from '@/@core/enums/user-role';
 
-import { InvalidInvitationActionError } from '@/modules/guests/application/errors/invite-invitation-action.error';
+import { InvalidInvitationActionError } from '@/modules/guests/application/errors/invalid-invitation-action.error';
 import { InvitesRepository } from '@/modules/guests/application/repositories/invites.repository';
 import { InviteStatusEnum } from '@/modules/guests/domain/enums/invite-status';
 import { GuestInvitedDomainEvent } from '@/modules/guests/domain/events/guest-invited.event';

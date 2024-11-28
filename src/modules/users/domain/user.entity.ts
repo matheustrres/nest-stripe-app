@@ -18,7 +18,7 @@ export type UserEntityProps = {
 	subscription?: SubscriptionEntity;
 };
 
-type OptionaUserEntityConstructorProps = Optional<
+export type OptionaUserEntityConstructorProps = Optional<
 	UserEntityProps,
 	'role' | 'tokens' | 'isAccountConfirmed'
 >;

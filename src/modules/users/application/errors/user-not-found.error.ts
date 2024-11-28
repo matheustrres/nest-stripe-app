@@ -14,4 +14,8 @@ export class UserNotFoundError extends AppError {
 			`The following email address "${email}" is invalid.`,
 		);
 	}
+
+	static byId(id: string): UserNotFoundError {
+		return new UserNotFoundError(`No user was found with ID "${id}".`);
+	}
 }
