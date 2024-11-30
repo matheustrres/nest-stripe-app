@@ -88,7 +88,6 @@ export class CancelSubscriptionUseCase
 
 		userSubscription.update({
 			status: new SubscriptionStatusValueObject(
-				vendorSubscriptionId,
 				SubscriptionStatusEnum.Canceled,
 				userSubscription.createdAt,
 			),
@@ -124,8 +123,7 @@ export class CancelSubscriptionUseCase
 		vendorSubscription: VendorSubscriptionType,
 		userSubscription: SubscriptionEntity,
 	): Promise<void> {
-		const { status: subscriptionStatus, vendorSubscriptionId } =
-			userSubscription.getProps();
+		const { status: subscriptionStatus } = userSubscription.getProps();
 
 		if (
 			vendorSubscription.status == VendorSubscriptionStatusEnum.Canceled &&
@@ -133,7 +131,6 @@ export class CancelSubscriptionUseCase
 		) {
 			userSubscription.update({
 				status: new SubscriptionStatusValueObject(
-					vendorSubscriptionId,
 					SubscriptionStatusEnum.Canceled,
 					userSubscription.createdAt,
 				),

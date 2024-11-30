@@ -1,7 +1,6 @@
 import { SubscriptionStatusEnum } from '@/modules/subscriptions/domain/enums/subscription-status';
 
 export type SubscriptionStatusValueObjectProps = {
-	vendorSubscriptionId: string;
 	status: SubscriptionStatusEnum;
 	readonly createdAt: Date;
 };
@@ -9,16 +8,10 @@ export type SubscriptionStatusValueObjectProps = {
 export class SubscriptionStatusValueObject
 	implements SubscriptionStatusValueObjectProps
 {
-	vendorSubscriptionId!: string;
 	status!: SubscriptionStatusEnum;
 	readonly createdAt!: Date;
 
-	constructor(
-		vendorSubscriptionId: string,
-		status: SubscriptionStatusEnum,
-		createdAt: Date,
-	) {
-		this.vendorSubscriptionId = vendorSubscriptionId;
+	constructor(status: SubscriptionStatusEnum, createdAt: Date) {
 		this.status = status;
 		this.createdAt = createdAt;
 	}
@@ -33,9 +26,7 @@ export class SubscriptionStatusValueObject
 
 	equalsTo(instance: SubscriptionStatusValueObject): boolean {
 		return (
-			this.status === instance.status &&
-			this.vendorSubscriptionId === instance.vendorSubscriptionId &&
-			this.createdAt === instance.createdAt
+			this.status === instance.status && this.createdAt === instance.createdAt
 		);
 	}
 }

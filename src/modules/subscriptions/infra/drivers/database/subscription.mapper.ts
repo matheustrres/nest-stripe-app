@@ -12,7 +12,6 @@ export class PrismaSubscriptionMapper
 {
 	toDomain(model: Subscription): SubscriptionEntity {
 		const status = new SubscriptionStatusValueObject(
-			model.vendorSubscriptionId,
 			model.status as SubscriptionStatusEnum,
 			model.createdAt,
 		);

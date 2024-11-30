@@ -99,7 +99,6 @@ export class CreateSubscriptionUseCase
 		const vendorSubscription = vendorSubscriptionCreationResult.value;
 
 		const subscriptionStatus = new SubscriptionStatusValueObject(
-			vendorSubscription.id,
 			SubscriptionStatusEnum.Active,
 			new Date(),
 		);
