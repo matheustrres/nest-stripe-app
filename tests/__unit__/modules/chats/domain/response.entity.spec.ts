@@ -28,4 +28,26 @@ describe(ResponseEntity.name, () => {
 		expect(restoredResponse).toBeDefined();
 		expect(restoredResponse).toStrictEqual(response);
 	});
+
+	it('should update a response', () => {
+		const response = new ResponseEntityBuilder()
+			.setContent('Real Madrid is the best team in the world.')
+			.setModel(AiModelEnum.Gemini1_0Pro)
+			.build();
+
+		expect(response.getProps().content).toBe(
+			'Real Madrid is the best team in the world.',
+		);
+		expect(response.getProps().model).toBe('gemini-1.0-pro');
+
+		response.update({
+			content: 'Barcelona is the best team in the world.',
+			model: AiModelEnum.Gemini1_5Pro,
+		});
+
+		expect(response.getProps().content).toBe(
+			'Barcelona is the best team in the world.',
+		);
+		expect(response.getProps().model).toBe('gemini-1.5-pro');
+	});
 });

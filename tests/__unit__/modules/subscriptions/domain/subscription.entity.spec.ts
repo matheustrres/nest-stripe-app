@@ -39,4 +39,22 @@ describe(SubscriptionEntity.name, () => {
 		expect(subscription).toStrictEqual(restoredSubscription);
 		expect(restoredSubscription.getProps().userId).toStrictEqual(userId);
 	});
+
+	it('should update a subscription', () => {
+		const subscription = new SubscriptionEntityBuilder()
+			.setVendorCustomerId('old_cus_id')
+			.setVendorSubscriptionId('old_sub_id')
+			.build();
+
+		expect(subscription.getProps().vendorCustomerId).toBe('old_cus_id');
+		expect(subscription.getProps().vendorSubscriptionId).toBe('old_sub_id');
+
+		subscription.update({
+			vendorCustomerId: 'new_cus_id',
+			vendorSubscriptionId: 'new_sub_id',
+		});
+
+		expect(subscription.getProps().vendorCustomerId).toBe('new_cus_id');
+		expect(subscription.getProps().vendorSubscriptionId).toBe('new_sub_id');
+	});
 });

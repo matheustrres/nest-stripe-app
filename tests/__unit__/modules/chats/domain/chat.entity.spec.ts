@@ -26,4 +26,22 @@ describe(ChatEntity.name, () => {
 		expect(restoredChat).toBeDefined();
 		expect(restoredChat).toStrictEqual(chat);
 	});
+
+	it('should update a chat', () => {
+		const chat = new ChatEntityBuilder()
+			.setName('MyChat')
+			.setType(ChatTypeEnum.ConsumerLaw)
+			.build();
+
+		expect(chat.getProps().name).toBe('MyChat');
+		expect(chat.getProps().type).toBe('consumer_law');
+
+		chat.update({
+			name: 'AnotherChat',
+			type: ChatTypeEnum.QuickSearch,
+		});
+
+		expect(chat.getProps().name).toBe('AnotherChat');
+		expect(chat.getProps().type).toBe('quick_search');
+	});
 });

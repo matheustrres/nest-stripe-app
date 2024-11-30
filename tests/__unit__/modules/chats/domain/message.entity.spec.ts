@@ -24,4 +24,20 @@ describe(MessageEntity.name, () => {
 		expect(restoredMessage).toBeDefined();
 		expect(restoredMessage).toStrictEqual(message);
 	});
+
+	it('should update a message', () => {
+		const message = new MessageEntityBuilder()
+			.setContent('What is 2 plus 2?')
+			.build();
+
+		expect(message.getProps().content).toBe('What is 2 plus 2?');
+
+		message.update({
+			content: 'What is the best team in the world?',
+		});
+
+		expect(message.getProps().content).toBe(
+			'What is the best team in the world?',
+		);
+	});
 });
