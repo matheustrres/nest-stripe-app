@@ -6,6 +6,10 @@ export type CreateEntityProps<Props> = {
 	createdAt: Date;
 };
 
+export type CreateDeletableEntityProps<Props> = CreateEntityProps<Props> & {
+	deletedAt?: Date;
+};
+
 export abstract class Entity<Props> {
 	readonly id: EntityCuid;
 	protected props: Props;
@@ -23,5 +27,13 @@ export abstract class Entity<Props> {
 
 	static isEntity(data: unknown): data is Entity<unknown> {
 		return data instanceof Entity;
+	}
+}
+
+export abstract class DeletableEntity<Props> extends Entity<Props> {
+	readonly deletedAt?: Date;
+
+	constructor(props: CreateDeletableEntityProps<Props>) {
+		super(props);
 	}
 }
