@@ -10,7 +10,7 @@ export type ResponseEntityProps = {
 };
 
 type ResponseEntityConstructorProps = CreateEntityProps<ResponseEntityProps>;
-type ResponseEntityUpdateProps = Partial<ResponseEntityProps>;
+type ResponseEntityUpdatableProps = Partial<ResponseEntityProps>;
 
 export class ResponseEntity extends Entity<ResponseEntityProps> {
 	private constructor(props: ResponseEntityConstructorProps) {
@@ -29,7 +29,7 @@ export class ResponseEntity extends Entity<ResponseEntityProps> {
 		return new ResponseEntity(props);
 	}
 
-	update(props: ResponseEntityUpdateProps): void {
+	update(props: ResponseEntityUpdatableProps): void {
 		this.props = {
 			...this.props,
 			...props,

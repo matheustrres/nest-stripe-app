@@ -19,7 +19,7 @@ export type MessageEntityOptionalProps = Optional<
 >;
 type MessageEntityConstructorProps =
 	CreateDeletableEntityProps<MessageEntityOptionalProps>;
-type MessageEntityUpdateProps = Partial<MessageEntityProps>;
+type MessageEntityUpdatableProps = Partial<MessageEntityProps>;
 
 export class MessageEntity extends DeletableEntity<MessageEntityProps> {
 	private constructor({
@@ -51,7 +51,7 @@ export class MessageEntity extends DeletableEntity<MessageEntityProps> {
 		return new MessageEntity(props);
 	}
 
-	update(props: MessageEntityUpdateProps): void {
+	update(props: MessageEntityUpdatableProps): void {
 		this.props = {
 			...this.props,
 			...props,

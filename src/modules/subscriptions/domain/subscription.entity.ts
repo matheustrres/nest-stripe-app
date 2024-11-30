@@ -13,7 +13,7 @@ export type SubscriptionEntityProps = {
 
 type SubscriptionEntityConstructorProps =
 	CreateEntityProps<SubscriptionEntityProps>;
-type UpdateSubscriptionEntityProps = Partial<SubscriptionEntityProps>;
+type SubscriptionEntityUpdatableProps = Partial<SubscriptionEntityProps>;
 
 export class SubscriptionEntity extends Entity<SubscriptionEntityProps> {
 	private constructor(props: SubscriptionEntityConstructorProps) {
@@ -34,7 +34,7 @@ export class SubscriptionEntity extends Entity<SubscriptionEntityProps> {
 		return new SubscriptionEntity(props);
 	}
 
-	update(props: UpdateSubscriptionEntityProps): void {
+	update(props: SubscriptionEntityUpdatableProps): void {
 		this.props = {
 			...this.props,
 			...props,

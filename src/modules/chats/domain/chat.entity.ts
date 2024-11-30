@@ -19,7 +19,7 @@ export type ChatEntityProps = {
 export type ChatEntityOptionalProps = Optional<ChatEntityProps, 'messages'>;
 type ChatEntityConstructorProps =
 	CreateDeletableEntityProps<ChatEntityOptionalProps>;
-type ChatEntityUpdateProps = Partial<ChatEntityProps>;
+type ChatEntityUpdatableProps = Partial<ChatEntityProps>;
 
 export class ChatEntity extends DeletableEntity<ChatEntityProps> {
 	private constructor({
@@ -51,7 +51,7 @@ export class ChatEntity extends DeletableEntity<ChatEntityProps> {
 		return new ChatEntity(props);
 	}
 
-	update(props: ChatEntityUpdateProps): void {
+	update(props: ChatEntityUpdatableProps): void {
 		this.props = {
 			...this.props,
 			...props,

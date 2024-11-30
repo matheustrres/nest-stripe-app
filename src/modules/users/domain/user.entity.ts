@@ -18,13 +18,12 @@ export type UserEntityProps = {
 	subscription?: SubscriptionEntity;
 };
 
-type OptionaUserEntityConstructorProps = Optional<
+export type UserEntityOptionalProps = Optional<
 	UserEntityProps,
 	'role' | 'tokens' | 'isAccountConfirmed'
 >;
-type UserEntityConstructorProps =
-	CreateEntityProps<OptionaUserEntityConstructorProps>;
-type UpdateUserEntityProps = Omit<
+type UserEntityConstructorProps = CreateEntityProps<UserEntityOptionalProps>;
+type UserEntityUpdatableProps = Omit<
 	Partial<UserEntityProps>,
 	'isAccountConfirmed'
 >;
@@ -43,7 +42,7 @@ export class UserEntity extends Entity<UserEntityProps> {
 		});
 	}
 
-	static createNew(props: OptionaUserEntityConstructorProps): UserEntity {
+	static createNew(props: UserEntityOptionalProps): UserEntity {
 		return new UserEntity({
 			id: new EntityCuid(),
 			props,
@@ -55,7 +54,7 @@ export class UserEntity extends Entity<UserEntityProps> {
 		return new UserEntity(props);
 	}
 
-	update(props: UpdateUserEntityProps): void {
+	update(props: UserEntityUpdatableProps): void {
 		this.props = {
 			...this.props,
 			...props,

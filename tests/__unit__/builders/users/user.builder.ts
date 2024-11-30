@@ -5,22 +5,20 @@ import { Role } from '@/@core/enums/user-role';
 import { SubscriptionEntity } from '@/modules/subscriptions/domain/subscription.entity';
 import {
 	UserEntity,
-	UserEntityProps,
+	UserEntityOptionalProps,
 } from '@/modules/users/domain/user.entity';
 
 import { FakerLib } from '#/__unit__/!libs/faker';
 
 export class UserEntityBuilder {
-	#props: UserEntityProps = {
+	#props: UserEntityOptionalProps = {
 		name: FakerLib.person.fullName(),
 		email: FakerLib.internet.email(),
 		password: FakerLib.internet.password(),
 		role: Role.User,
-		tokens: new UserTokensValueObjectBuilder().build(),
-		isAccountConfirmed: false,
 	};
 
-	getProps(): UserEntityProps {
+	getProps(): UserEntityOptionalProps {
 		return this.#props;
 	}
 
