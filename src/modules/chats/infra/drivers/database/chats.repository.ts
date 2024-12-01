@@ -37,9 +37,13 @@ export class PrismaChatsRepository implements ChatsRepository {
 		return new PrismaChatMapper().toDomain(record);
 	}
 
-	async findByOwnerId(ownerId: string): Promise<ChatEntity | null> {
+	async findByOwnerId(
+		chatId: string,
+		ownerId: string,
+	): Promise<ChatEntity | null> {
 		const record = await this.prismaService.chat.findFirst({
 			where: {
+				id: chatId,
 				ownerId,
 			},
 		});
