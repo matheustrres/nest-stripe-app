@@ -7,6 +7,7 @@ import { CreateChatUseCase } from './application/use-cases/create-chat.use-case'
 import { PrismaChatsRepository } from './infra/drivers/database/chats.repository';
 import { PrismaMessagesRepository } from './infra/drivers/database/messages.repository';
 import { PrismaResponsesRepository } from './infra/drivers/database/responses.repository';
+import { ChatsController } from './infra/drivers/http/rest/chats.controller';
 
 import { UsersModule } from '@/modules/users/users.module';
 
@@ -29,6 +30,7 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 		},
 		CreateChatUseCase,
 	],
+	controllers: [ChatsController],
 	exports: [ChatsRepository, MessagesRepository],
 })
 export class ChatsModule {}
