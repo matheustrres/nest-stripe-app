@@ -8,6 +8,7 @@ import { MessagesRepository } from '@/modules/chats/application/repositories/mes
 import { CreateMessageUseCase } from '@/modules/chats/application/use-cases/create-message.use-case';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
+import { ChatEntityBuilder } from '#/__unit__/builders/chats/chat.builder';
 import { CreateMessageUseCaseBuilder } from '#/__unit__/builders/chats/use-cases/create-message.builder';
 import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
@@ -84,5 +85,30 @@ describe(CreateMessageUseCase.name, () => {
 			input.chatId,
 			input.userId,
 		);
+	});
+
+	it('should create a Message', async () => {
+		const user = new UserEntityBuilder().build();
+		const chat = new ChatEntityBuilder().setOwnerId(user.id).build();
+
+		jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(user);
+		jest.spyOn(chatsRepository, 'findByOwnerId').mockResolvedValueOnce(chat);
+		jest.spyOn(messagesRepository, 'upsert');
+
+		const input = new CreateMessageUseCaseBuilder()
+			.setUserId(user.id)
+			.setChatId(chat.id)
+			.getInput();
+
+		const { message } = await sut.exec(input);
+
+		expect(usersRepository.findById).toHaveBeenCalledWith(input.userId);
+		expect(chatsRepository.findByOwnerId).toHaveBeenCalledWith(
+			input.chatId,
+			input.userId,
+		);
+		expect(messagesRepository.upsert).toHaveBeenCalledWith(message);
+		expect(message).toBeDefined();
+		expect(message.getProps().chatId).toStrictEqual(chat.id);
 	});
 });
