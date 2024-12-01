@@ -19,12 +19,12 @@ export class PrismaMessageMapper implements Mapper<MessageEntity, Message> {
 	}
 
 	toPersist(entity: MessageEntity): Message {
-		const { chatId, ...rest } = entity.getProps();
+		const { chatId, content } = entity.getProps();
 
 		return {
 			id: entity.id.value,
-			...rest,
 			chatId: chatId.value,
+			content,
 			createdAt: entity.createdAt,
 			deletedAt: entity.deletedAt ?? null,
 			updatedAt: new Date(),
