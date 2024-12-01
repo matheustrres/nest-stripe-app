@@ -1,4 +1,3 @@
-import { AdaptersModule } from '@/infra/adapters/adapters.module';
 import { StripeModule } from '@golevelup/nestjs-stripe';
 import { Module } from '@nestjs/common';
 
@@ -13,6 +12,8 @@ import { RefundSubscriptionDomainEventListener } from './infra/events/listeners/
 
 import { EnvService } from '@/@core/config/env/env.service';
 import { NodeEnvEnum } from '@/@core/enums/node-env';
+
+import { AdaptersModule } from '@/infra/adapters/adapters.module';
 
 import { UsersModule } from '@/modules/users/users.module';
 
