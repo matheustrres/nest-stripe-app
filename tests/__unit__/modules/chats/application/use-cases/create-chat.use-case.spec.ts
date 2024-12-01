@@ -78,4 +78,25 @@ describe(CreateChatUseCase.name, () => {
 		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
 		expect(chatsRepository.findByName).toHaveBeenCalledWith(input.name);
 	});
+
+	it('should create a Chat', async () => {
+		const user = new UserEntityBuilder().build();
+
+		jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+		jest.spyOn(chatsRepository, 'findByName').mockResolvedValueOnce(null);
+		jest.spyOn(chatsRepository, 'upsert');
+
+		const input = new CreateChatUseCaseBuilder()
+			.setUserId(user.id.value)
+			.setName('QuickChat')
+			.getInput();
+
+		const { chat } = await sut.exec(input);
+
+		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
+		expect(chatsRepository.findByName).toHaveBeenCalledWith(input.name);
+		expect(chatsRepository.upsert).toHaveBeenCalled();
+		expect(chat).toBeDefined();
+		expect(chat.getProps().name).toBe('QuickChat');
+	});
 });
