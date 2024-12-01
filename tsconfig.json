@@ -8,7 +8,13 @@
 		"noUnusedLocals": true,
 		"paths": {
 			"$/*": ["./assets/*"],
-			"@/*": ["./src/*"],
+			"@/app.controller": ["./src/app.controller.ts"],
+			"@/app.service": ["./src/app.service.ts"],
+			"@/app.module": ["./src/app.module.ts"],
+			"@/@core/*": ["./src/@core/*"],
+			"@/infra/*": ["./src/infra/*"],
+			"@/modules/*": ["./src/modules/*"],
+			"@/shared/*": ["./src/shared/*"],
 			"#/*": ["tests/*"]
 		},
 		"emitDecoratorMetadata": true,

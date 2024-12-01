@@ -1,8 +1,8 @@
-import { type Config } from 'jest';
+import { Config } from 'jest';
 
 export default {
-	roots: ['<rootDir>/tests/__unit__'],
 	rootDir: '.',
+	roots: ['<rootDir>/tests/__unit__'],
 	displayName: 'Unit test',
 	moduleFileExtensions: ['js', 'json', 'ts'],
 	testRegex: '.*\\.spec\\.ts$',
@@ -17,9 +17,13 @@ export default {
 	testEnvironment: 'node',
 	moduleNameMapper: {
 		'#/(.+)': '<rootDir>/tests/$1',
-		'@/app': '<rootDir>/src/app',
-		'@/core/(.+)': '<rootDir>/src/core/$1',
+		'@/app.controller': '<rootDir>/src/app.controller',
+		'@/app.service': '<rootDir>/src/app.service',
+		'@/app.module': '<rootDir>/src/app.module',
+		'@/core/(.+)': '<rootDir>/src/@core/$1',
+		'@/infra/(.+)': '<rootDir>/src/infra/$1',
 		'@/modules/(.+)': '<rootDir>/src/modules/$1',
 		'@/shared/(.+)': '<rootDir>/src/shared/$1',
+		'@/(.+)': '<rootDir>/src/$1',
 	},
 } as Config;

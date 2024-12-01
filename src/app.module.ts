@@ -1,11 +1,12 @@
-import { AdaptersModule } from '@/infra/adapters/adapters.module';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppController } from '@/app.controller';
+import { AppService } from '@/app.service';
 
 import { CoreModule } from '@/@core/core.module';
+
+import { AdaptersModule } from '@/infra/adapters/adapters.module';
 
 import { SubscriptionsModule } from '@/modules/subscriptions/subscriptions.module';
 import { UsersModule } from '@/modules/users/users.module';

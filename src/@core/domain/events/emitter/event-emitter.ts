@@ -1,4 +1,4 @@
-import { DomainEvent } from '../domain-event';
+import { DomainEvent } from '@/@core/domain/events/domain-event';
 
 export abstract class EventEmitter {
 	abstract emit<T = unknown>(domainEvent: DomainEvent<T>): boolean;

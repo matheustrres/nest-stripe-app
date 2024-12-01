@@ -1,4 +1,4 @@
-import { Entity } from '../domain/entity';
+import { Entity } from '@/@core/domain/entity';
 
 export abstract class Repository<DomainEntity extends Entity<unknown>> {
 	abstract delete(id: string): Promise<void>;
