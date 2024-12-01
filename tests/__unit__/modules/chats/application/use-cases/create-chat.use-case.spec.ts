@@ -2,11 +2,14 @@ import { Test } from '@nestjs/testing';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 
+import { ChatAlreadyExistsError } from '@/modules/chats/application/errors/chat-already-exists.error';
 import { ChatsRepository } from '@/modules/chats/application/repositories/chats.repository';
 import { CreateChatUseCase } from '@/modules/chats/application/use-cases/create-chat.use-case';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
 
+import { ChatEntityBuilder } from '#/__unit__/builders/chats/chat.builder';
 import { CreateChatUseCaseBuilder } from '#/__unit__/builders/chats/use-cases/create-chat.builder';
+import { UserEntityBuilder } from '#/__unit__/builders/users/user.builder';
 
 describe(CreateChatUseCase.name, () => {
 	let chatsRepository: ChatsRepository;
@@ -56,5 +59,23 @@ describe(CreateChatUseCase.name, () => {
 		);
 		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
 		expect(chatsRepository.findByName).not.toHaveBeenCalled();
+	});
+
+	it('should throw a ChatAlreadyExistsError if a chat already exists with given {name}', async () => {
+		const user = new UserEntityBuilder().build();
+		const chat = new ChatEntityBuilder().build();
+
+		jest.spyOn(usersRepository, 'findOne').mockResolvedValueOnce(user);
+		jest.spyOn(chatsRepository, 'findByName').mockResolvedValueOnce(chat);
+
+		const input = new CreateChatUseCaseBuilder()
+			.setUserId(user.id.value)
+			.getInput();
+
+		await expect(sut.exec(input)).rejects.toThrow(
+			ChatAlreadyExistsError.byName(input.name),
+		);
+		expect(usersRepository.findOne).toHaveBeenCalledWith(input.userId);
+		expect(chatsRepository.findByName).toHaveBeenCalledWith(input.name);
 	});
 });
