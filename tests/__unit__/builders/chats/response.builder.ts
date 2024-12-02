@@ -1,6 +1,6 @@
 import { EntityCuid } from '@/@core/domain/entity-cuid';
 
-import { AiModelEnum } from '@/modules/chats/domain/enums/ai-model';
+import { AIModelEnum } from '@/modules/chats/domain/enums/ai-model';
 import {
 	ResponseEntity,
 	ResponseEntityProps,
@@ -12,7 +12,7 @@ export class ResponseEntityBuilder {
 	#props: ResponseEntityProps = {
 		content: FakerLib.lorem.paragraph(),
 		messageId: new EntityCuid(),
-		model: AiModelEnum.Gemini1_0Pro,
+		model: AIModelEnum.Gemini1_0Pro,
 	};
 
 	getProps(): ResponseEntityProps {
@@ -29,7 +29,7 @@ export class ResponseEntityBuilder {
 		return this;
 	}
 
-	setModel(model: AiModelEnum): this {
+	setModel(model: AIModelEnum): this {
 		this.#props.model = model;
 		return this;
 	}

@@ -1,11 +1,11 @@
-import { AiModelEnum } from './enums/ai-model';
+import { AIModelEnum } from './enums/ai-model';
 
 import { CreateEntityProps, Entity } from '@/@core/domain/entity';
 import { EntityCuid } from '@/@core/domain/entity-cuid';
 
 export type ResponseEntityProps = {
 	content: string;
-	model: AiModelEnum;
+	model: AIModelEnum;
 	messageId: EntityCuid;
 };
 

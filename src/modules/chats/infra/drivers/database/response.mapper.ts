@@ -3,7 +3,7 @@ import { Response } from '@prisma/client';
 import { EntityCuid } from '@/@core/domain/entity-cuid';
 import { Mapper } from '@/@core/domain/mapper';
 
-import { AiModelEnum } from '@/modules/chats/domain/enums/ai-model';
+import { AIModelEnum } from '@/modules/chats/domain/enums/ai-model';
 import { ResponseEntity } from '@/modules/chats/domain/response.entity';
 
 export class PrismaResponseMapper implements Mapper<ResponseEntity, Response> {
@@ -13,7 +13,7 @@ export class PrismaResponseMapper implements Mapper<ResponseEntity, Response> {
 			props: {
 				...model,
 				messageId: new EntityCuid(model.messageId),
-				model: model.model as AiModelEnum,
+				model: model.model as AIModelEnum,
 			},
 			createdAt: model.createdAt,
 		});

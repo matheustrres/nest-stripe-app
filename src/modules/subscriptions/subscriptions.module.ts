@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 
 import { VendorPaymentsClient } from './application/clients/payments/payments.client';
 import { SubscriptionsRepository } from './application/repositories/subscriptions.repository';
+import { SubscriptionTokensService } from './application/services/tokens.service';
 import { CancelSubscriptionUseCase } from './application/use-cases/cancel-subscription.use-case';
 import { CreateSubscriptionUseCase } from './application/use-cases/create-subscription.use-case';
 import { StripeVendorPaymentsClientAdapter } from './infra/adapters/clients/payments/stripe.client';
@@ -52,8 +53,9 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 		CancelSubscriptionUseCase,
 		CreateSubscriptionUseCase,
 		RefundSubscriptionDomainEventListener,
+		SubscriptionTokensService,
 	],
 	controllers: [SubscriptionsController],
-	exports: [SubscriptionsRepository],
+	exports: [SubscriptionsRepository, SubscriptionTokensService],
 })
 export class SubscriptionsModule {}

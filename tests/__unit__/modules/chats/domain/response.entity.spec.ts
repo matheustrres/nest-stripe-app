@@ -1,4 +1,4 @@
-import { AiModelEnum } from '@/modules/chats/domain/enums/ai-model';
+import { AIModelEnum } from '@/modules/chats/domain/enums/ai-model';
 import { ResponseEntity } from '@/modules/chats/domain/response.entity';
 
 import { ResponseEntityBuilder } from '#/__unit__/builders/chats/response.builder';
@@ -7,7 +7,7 @@ describe(ResponseEntity.name, () => {
 	it('should create a new response', () => {
 		const response = new ResponseEntityBuilder()
 			.setContent('2 plus 2 is 4')
-			.setModel(AiModelEnum.Gemini1_5Flash)
+			.setModel(AIModelEnum.Gemini1_5Flash)
 			.build();
 
 		const { content, model } = response.getProps();
@@ -32,7 +32,7 @@ describe(ResponseEntity.name, () => {
 	it('should update a response', () => {
 		const response = new ResponseEntityBuilder()
 			.setContent('Real Madrid is the best team in the world.')
-			.setModel(AiModelEnum.Gemini1_0Pro)
+			.setModel(AIModelEnum.Gemini1_0Pro)
 			.build();
 
 		expect(response.getProps().content).toBe(
@@ -42,7 +42,7 @@ describe(ResponseEntity.name, () => {
 
 		response.update({
 			content: 'Barcelona is the best team in the world.',
-			model: AiModelEnum.Gemini1_5Pro,
+			model: AIModelEnum.Gemini1_5Pro,
 		});
 
 		expect(response.getProps().content).toBe(
