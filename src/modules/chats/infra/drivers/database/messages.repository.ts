@@ -22,7 +22,7 @@ export class PrismaMessagesRepository implements MessagesRepository {
 	async find(): Promise<MessageEntity[]> {
 		const records = await this.prismaService.message.findMany();
 		if (!records.length) return [];
-		return records.map(new PrismaMessageMapper().toDomain);
+		return records.map((record) => new PrismaMessageMapper().toDomain(record));
 	}
 
 	async findOne(id: string): Promise<MessageEntity | null> {

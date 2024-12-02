@@ -8,3 +8,8 @@ export type JwtPayload = {
 };
 
 export type WithoutUserId<T> = Omit<T, 'userId'>;
+
+export enum OrderByEnum {
+	Ascending = 'asc',
+	Descending = 'desc',
+}
