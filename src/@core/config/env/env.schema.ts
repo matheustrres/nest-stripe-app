@@ -57,4 +57,8 @@ export class EnvSchema {
 	@IsNotEmpty()
 	@Matches(/^re_.*$/)
 	RESEND_API_KEY?: string;
+
+	@IsString()
+	@IsNotEmpty()
+	GEMINI_API_KEY?: string;
 }
