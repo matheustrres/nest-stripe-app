@@ -8,6 +8,7 @@ import {
 	ProfessionalAnnualTokens,
 	ProfessionalMonthlyTokens,
 	ProfessionalQuarterlyTokens,
+	UserFreeTrialTokens,
 } from '@/@core/domain/constants/tokens-per-plan';
 import { InvalidPlanDomainError } from '@/@core/domain/errors/invalid-plan.error';
 import { Either, left, right } from '@/@core/domain/logic/either';
@@ -17,6 +18,7 @@ type PlanTokensMap = Record<VendorPlanNameEnum, number>;
 
 export class VendorTokensService {
 	static readonly #PLAN_TOKENS_MAP: PlanTokensMap = {
+		[VendorPlanNameEnum.Free]: UserFreeTrialTokens,
 		[VendorPlanNameEnum.EssentialMonthly]: EssentialMonthlyTokens,
 		[VendorPlanNameEnum.EssentialQuarterly]: EssentialQuarterlyTokens,
 		[VendorPlanNameEnum.EssentialAnnual]: EssentialAnnualTokens,

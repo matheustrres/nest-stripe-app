@@ -1,6 +1,6 @@
 export enum ChatTypeEnum {
-	QuickSearch = 'quick_search',
-	ConsumerLaw = 'consumer_law',
-	LegalResearch = 'legal_research',
-	DraftingLegalDocuments = 'drafting_legal_documents',
+	ConsumerLaw = 'consumer_law', //essential, professional, executive
+	DraftingLegalDocuments = 'drafting_legal_documents', // executive
+	LegalResearch = 'legal_research', // professional, executive
+	QuickSearch = 'quick_search', // essential, professional, executive
 }

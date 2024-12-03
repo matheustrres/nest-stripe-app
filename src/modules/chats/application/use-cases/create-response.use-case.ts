@@ -4,6 +4,9 @@ import { AIService } from '../services/ai.service';
 
 import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { UseCase } from '@/@core/application/use-case';
+import { EnvService } from '@/@core/config/env/env.service';
+import { VendorCatalogProductSectionsEnum } from '@/@core/domain/constants/vendor-products-catalog';
+import { VendorProductsCatalogService } from '@/@core/domain/services/vendor-products-catalog.service';
 import { OrderByEnum } from '@/@core/types';
 
 import { InvalidResponseActionError } from '@/modules/chats/application/errors/invalid-response-action.error';
@@ -15,6 +18,8 @@ import { AIModelEnum } from '@/modules/chats/domain/enums/ai-model';
 import { ChatTypeEnum } from '@/modules/chats/domain/enums/chat-type';
 import { MessageEntity } from '@/modules/chats/domain/message.entity';
 import { ResponseEntity } from '@/modules/chats/domain/response.entity';
+import { SubscriptionNotFoundError } from '@/modules/subscriptions/application/errors/subscription-not-found.error';
+import { SubscriptionPolicyFactoryService } from '@/modules/subscriptions/application/services/subscription-policy-factory.service';
 import { SubscriptionTokensService } from '@/modules/subscriptions/application/services/tokens.service';
 import { SubscriptionEntity } from '@/modules/subscriptions/domain/subscription.entity';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
@@ -36,6 +41,9 @@ export class CreateResponseUseCase
 	implements UseCase<CreateResponseUseCaseInput, CreateResponseUseCaseOutput>
 {
 	constructor(
+		private readonly productsCatalogService: VendorProductsCatalogService,
+		private readonly envService: EnvService,
+		private readonly subscriptionPolicyFactoryService: SubscriptionPolicyFactoryService,
 		private readonly usersRepository: UsersRepository,
 		private readonly messagesRepository: MessagesRepository,
 		private readonly subscriptionTokensService: SubscriptionTokensService,
@@ -45,16 +53,51 @@ export class CreateResponseUseCase
 	) {}
 
 	async exec({
+		model,
+		chatType,
 		userId,
 		messageId,
-		model,
 	}: CreateResponseUseCaseInput): Promise<CreateResponseUseCaseOutput> {
-		const { user, subscription } =
+		const { user, subscription: userSubscription } =
 			await this.#fetchUserWithSubscription(userId);
 
-		const isSubscriptionValid = this.#isSubscriptionValid(subscription);
+		const isSubscriptionValid = this.#isSubscriptionValid(userSubscription);
+
 		if (!isSubscriptionValid)
 			throw InvalidResponseActionError.byInvalidSubscription();
+
+		const validatedUserSubscription = userSubscription as SubscriptionEntity;
+		const { vendorProductId, vendorSubscriptionId } =
+			validatedUserSubscription.getProps();
+
+		const environment = this.envService.getKeyOrThrow('NODE_ENV');
+
+		const vendorPlanFindingResult =
+			this.productsCatalogService.getCatalogSessionProduct(
+				VendorCatalogProductSectionsEnum.Plans,
+				environment,
+				vendorProductId,
+			);
+		if (vendorPlanFindingResult.isLeft()) {
+			throw SubscriptionNotFoundError.byCurrentSubscription(
+				vendorSubscriptionId,
+			);
+		}
+
+		const vendorPlan = vendorPlanFindingResult.value;
+
+		const policy = this.subscriptionPolicyFactoryService.createPolicy({
+			aiModel: model,
+			chatType,
+			planLevel: vendorPlan.level,
+		});
+		const policyValidationResult = policy.validate();
+
+		if (policyValidationResult.isLeft()) {
+			throw new InvalidResponseActionError(
+				policyValidationResult.value.message,
+			);
+		}
 
 		const message = await this.#fetchMessage(messageId);
 		const { chatId, content: msgContent } = message.getProps();
@@ -116,7 +159,7 @@ export class CreateResponseUseCase
 	}
 
 	#isSubscriptionValid(subscription?: SubscriptionEntity): boolean {
-		return !!(subscription && subscription.getProps().status.isActive());
+		return !!subscription && subscription.getProps().status.isActive();
 	}
 
 	async #fetchMessage(messageId: string): Promise<MessageEntity> {

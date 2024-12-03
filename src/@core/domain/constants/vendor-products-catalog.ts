@@ -8,6 +8,7 @@ import {
 	ProfessionalAnnualTokens,
 	ProfessionalMonthlyTokens,
 	ProfessionalQuarterlyTokens,
+	UserFreeTrialTokens,
 } from './tokens-per-plan';
 
 import { NodeEnvEnum } from '@/@core/enums/node-env';
@@ -49,6 +50,29 @@ export type VendorProductsCatalogMapType = {
 export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 	[VendorCatalogProductSectionsEnum.Plans]: {
 		[NodeEnvEnum.DEVELOPMENT]: {
+			[VendorPlanLevelEnum.Free]: {
+				[VendorPlanFrequencyEnum.Monthly]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: 'price_1QRk9iP7QrM0bVUXfEql1g4R',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+				[VendorPlanFrequencyEnum.Quarterly]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: '',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+				[VendorPlanFrequencyEnum.Annual]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: '',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+			},
 			[VendorPlanLevelEnum.Essential]: {
 				[VendorPlanFrequencyEnum.Monthly]: {
 					name: VendorPlanNameEnum.EssentialMonthly,
@@ -120,6 +144,29 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 			},
 		},
 		[NodeEnvEnum.PRODUCTION]: {
+			[VendorPlanLevelEnum.Free]: {
+				[VendorPlanFrequencyEnum.Monthly]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: 'price_1QRk9iP7QrM0bVUXfEql1g4R',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+				[VendorPlanFrequencyEnum.Quarterly]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: '',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+				[VendorPlanFrequencyEnum.Annual]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: '',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+			},
 			[VendorPlanLevelEnum.Essential]: {
 				[VendorPlanFrequencyEnum.Monthly]: {
 					name: VendorPlanNameEnum.EssentialMonthly,
@@ -191,6 +238,29 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 			},
 		},
 		[NodeEnvEnum.STAGING]: {
+			[VendorPlanLevelEnum.Free]: {
+				[VendorPlanFrequencyEnum.Monthly]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: 'price_1QRk9iP7QrM0bVUXfEql1g4R',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+				[VendorPlanFrequencyEnum.Quarterly]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: '',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+				[VendorPlanFrequencyEnum.Annual]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: '',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+			},
 			[VendorPlanLevelEnum.Essential]: {
 				[VendorPlanFrequencyEnum.Monthly]: {
 					name: VendorPlanNameEnum.EssentialMonthly,
@@ -262,6 +332,29 @@ export const VendorProductsCatalogMap: VendorProductsCatalogMapType = {
 			},
 		},
 		[NodeEnvEnum.TESTING]: {
+			[VendorPlanLevelEnum.Free]: {
+				[VendorPlanFrequencyEnum.Monthly]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: 'price_1QRk9iP7QrM0bVUXfEql1g4R',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+				[VendorPlanFrequencyEnum.Quarterly]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: '',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+				[VendorPlanFrequencyEnum.Annual]: {
+					name: VendorPlanNameEnum.Free,
+					price: 0,
+					priceId: '',
+					prodId: 'prod_RKOxb5qVoFnNMB',
+					tokensPerCycle: UserFreeTrialTokens,
+				},
+			},
 			[VendorPlanLevelEnum.Essential]: {
 				[VendorPlanFrequencyEnum.Monthly]: {
 					name: VendorPlanNameEnum.EssentialMonthly,

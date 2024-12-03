@@ -5,12 +5,14 @@ export enum VendorPlanFrequencyEnum {
 }
 
 export enum VendorPlanLevelEnum {
+	Free = 'Free',
 	Essential = 'Essential',
 	Professional = 'Professional',
 	Executive = 'Executive',
 }
 
 export enum VendorPlanNameEnum {
+	Free = 'Free',
 	EssentialMonthly = 'Essential Monthly',
 	EssentialQuarterly = 'Essential Quarterly',
 	EssentialAnnual = 'Essential Annual',
