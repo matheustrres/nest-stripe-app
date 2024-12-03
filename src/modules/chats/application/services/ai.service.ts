@@ -7,6 +7,15 @@ export type GenContentInput = {
 	prompt: string;
 };
 
+export type GenContentOutput = {
+	data: string;
+	tokensUsed: number;
+};
+
 export abstract class AIService {
-	abstract genContent(input: GenContentInput): Promise<string>;
+	abstract estimateTokensUsage(
+		model: AIModelEnum,
+		prompt: string,
+	): Promise<number>;
+	abstract genContent(input: GenContentInput): Promise<GenContentOutput>;
 }

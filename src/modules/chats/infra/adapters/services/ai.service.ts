@@ -1,4 +1,8 @@
-import { Content, GoogleGenerativeAI } from '@google/generative-ai';
+import {
+	Content,
+	GenerateContentResult,
+	GoogleGenerativeAI,
+} from '@google/generative-ai';
 import { Injectable } from '@nestjs/common';
 
 import { EnvService } from '@/@core/config/env/env.service';
@@ -6,7 +10,9 @@ import { EnvService } from '@/@core/config/env/env.service';
 import {
 	AIService,
 	GenContentInput,
+	GenContentOutput,
 } from '@/modules/chats/application/services/ai.service';
+import { AIModelEnum } from '@/modules/chats/domain/enums/ai-model';
 
 @Injectable()
 export class GeminiAIServiceAdapter implements AIService {
@@ -18,12 +24,21 @@ export class GeminiAIServiceAdapter implements AIService {
 		this.#generativeAI = new GoogleGenerativeAI(key);
 	}
 
+	async estimateTokensUsage(
+		model: AIModelEnum,
+		prompt: string,
+	): Promise<number> {
+		const geminiModel = this.#generativeAI.getGenerativeModel({ model });
+		const { totalTokens } = await geminiModel.countTokens(prompt);
+		return totalTokens;
+	}
+
 	async genContent({
 		chatPreviousMessages,
 		model,
 		prompt,
-	}: GenContentInput): Promise<string> {
-		const chatHistoryContent: Content[] = chatPreviousMessages
+	}: GenContentInput): Promise<GenContentOutput> {
+		const chatPreviousHistoryContent: Content[] = chatPreviousMessages
 			.flatMap((msg) => {
 				const { content, responses } = msg.getProps();
 				return [
@@ -45,24 +60,31 @@ export class GeminiAIServiceAdapter implements AIService {
 		const geminiModel = this.#generativeAI.getGenerativeModel({
 			model,
 		});
-		const chat = geminiModel.startChat({
-			history: chatHistoryContent,
+		const chatSession = geminiModel.startChat({
+			history: chatPreviousHistoryContent,
 		});
-		const chatHistory = await chat.getHistory();
-		const result = await geminiModel.generateContent({
-			contents: [
-				...chatHistory,
-				{
-					role: 'user',
-					parts: [
-						{
-							text: prompt,
-						},
-					],
-				},
-			],
-		});
+		const chatHistoryContent = await chatSession.getHistory();
 
-		return result.response.text();
+		const generatedContentResult: GenerateContentResult =
+			await geminiModel.generateContent({
+				contents: [
+					...chatHistoryContent,
+					{
+						role: 'user',
+						parts: [
+							{
+								text: prompt,
+							},
+						],
+					},
+				],
+			});
+
+		const { text, usageMetadata } = generatedContentResult.response;
+
+		return {
+			data: text(),
+			tokensUsed: usageMetadata!.totalTokenCount,
+		};
 	}
 }

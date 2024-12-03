@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
 
-import { AIService } from '../services/ai.service';
-
-import { InvalidCredentialsError } from '@/@core/application/errors/invalid-credentials.error';
 import { UseCase } from '@/@core/application/use-case';
 import { EnvService } from '@/@core/config/env/env.service';
 import { VendorCatalogProductSectionsEnum } from '@/@core/domain/constants/vendor-products-catalog';
@@ -14,12 +11,13 @@ import { MessageNotFoundError } from '@/modules/chats/application/errors/message
 import { ChatsRepository } from '@/modules/chats/application/repositories/chats.repository';
 import { MessagesRepository } from '@/modules/chats/application/repositories/messages.repository';
 import { ResponsesRepository } from '@/modules/chats/application/repositories/responses.repository';
+import { AIService } from '@/modules/chats/application/services/ai.service';
 import { AIModelEnum } from '@/modules/chats/domain/enums/ai-model';
 import { ChatTypeEnum } from '@/modules/chats/domain/enums/chat-type';
 import { MessageEntity } from '@/modules/chats/domain/message.entity';
 import { ResponseEntity } from '@/modules/chats/domain/response.entity';
 import { SubscriptionNotFoundError } from '@/modules/subscriptions/application/errors/subscription-not-found.error';
-import { SubscriptionPolicyFactoryService } from '@/modules/subscriptions/application/services/subscription-policy-factory.service';
+import { SubscriptionsService } from '@/modules/subscriptions/application/services/subscriptions.service';
 import { SubscriptionTokensService } from '@/modules/subscriptions/application/services/tokens.service';
 import { SubscriptionEntity } from '@/modules/subscriptions/domain/subscription.entity';
 import { UsersRepository } from '@/modules/users/application/repositories/users.repository';
@@ -41,15 +39,15 @@ export class CreateResponseUseCase
 	implements UseCase<CreateResponseUseCaseInput, CreateResponseUseCaseOutput>
 {
 	constructor(
-		private readonly productsCatalogService: VendorProductsCatalogService,
-		private readonly envService: EnvService,
-		private readonly subscriptionPolicyFactoryService: SubscriptionPolicyFactoryService,
-		private readonly usersRepository: UsersRepository,
-		private readonly messagesRepository: MessagesRepository,
-		private readonly subscriptionTokensService: SubscriptionTokensService,
-		private readonly chatsRepository: ChatsRepository,
 		private readonly aiService: AIService,
+		private readonly chatsRepository: ChatsRepository,
+		private readonly envService: EnvService,
+		private readonly messagesRepository: MessagesRepository,
+		private readonly productsCatalogService: VendorProductsCatalogService,
 		private readonly responsesRepository: ResponsesRepository,
+		private readonly subscriptionsService: SubscriptionsService,
+		private readonly subscriptionTokensService: SubscriptionTokensService,
+		private readonly usersRepository: UsersRepository,
 	) {}
 
 	async exec({
@@ -59,12 +57,12 @@ export class CreateResponseUseCase
 		messageId,
 	}: CreateResponseUseCaseInput): Promise<CreateResponseUseCaseOutput> {
 		const { user, subscription: userSubscription } =
-			await this.#fetchUserWithSubscription(userId);
+			await this.subscriptionsService.fetchUserWithSubscription(userId);
 
 		const isSubscriptionValid = this.#isSubscriptionValid(userSubscription);
-
-		if (!isSubscriptionValid)
+		if (!isSubscriptionValid) {
 			throw InvalidResponseActionError.byInvalidSubscription();
+		}
 
 		const validatedUserSubscription = userSubscription as SubscriptionEntity;
 		const { vendorProductId, vendorSubscriptionId } =
@@ -86,28 +84,18 @@ export class CreateResponseUseCase
 
 		const vendorPlan = vendorPlanFindingResult.value;
 
-		const policy = this.subscriptionPolicyFactoryService.createPolicy({
-			aiModel: model,
+		this.subscriptionsService.validateSubscriptionPolicy(
+			model,
 			chatType,
-			planLevel: vendorPlan.level,
-		});
-		const policyValidationResult = policy.validate();
-
-		if (policyValidationResult.isLeft()) {
-			throw new InvalidResponseActionError(
-				policyValidationResult.value.message,
-			);
-		}
+			vendorPlan.level,
+		);
 
 		const message = await this.#fetchMessage(messageId);
-		const { chatId, content: msgContent } = message.getProps();
 
+		const { chatId } = message.getProps();
 		const { tokens } = user.getProps();
 
-		const estimatedTokensUsage =
-			this.subscriptionTokensService.estimateTokensUsage(msgContent, model);
-		if (estimatedTokensUsage > tokens.amount)
-			throw InvalidResponseActionError.byInsufficientTokens();
+		this.#validateEstimatedTokensUsed(model, tokens.amount);
 
 		const chatMessagesWithResponses =
 			await this.chatsRepository.listChatMessages(chatId.value, {
@@ -121,14 +109,16 @@ export class CreateResponseUseCase
 		const { content: lastMsgContent } =
 			lastChatMessageWithoutResponse.getProps();
 
-		const result = await this.aiService.genContent({
+		const { data, tokensUsed } = await this.aiService.genContent({
 			chatPreviousMessages: chatMessagesWithResponses,
 			model,
 			prompt: lastMsgContent,
 		});
 
+		await this.#handleTokensSubtraction(user, tokensUsed);
+
 		const response = ResponseEntity.createNew({
-			content: result,
+			content: data,
 			messageId: message.id,
 			model,
 		});
@@ -137,24 +127,6 @@ export class CreateResponseUseCase
 
 		return {
 			response,
-		};
-	}
-
-	async #fetchUserWithSubscription(
-		userId: string,
-	): Promise<UserWithSubscription> {
-		const user = await this.usersRepository.findById(userId, {
-			relations: {
-				subscription: true,
-			},
-		});
-		if (!user) throw new InvalidCredentialsError();
-
-		const { subscription } = user.getProps();
-
-		return {
-			user,
-			subscription,
 		};
 	}
 
@@ -167,9 +139,31 @@ export class CreateResponseUseCase
 		if (!message) throw MessageNotFoundError.byId(messageId);
 		return message;
 	}
-}
 
-type UserWithSubscription = {
-	user: UserEntity;
-	subscription?: SubscriptionEntity;
-};
+	#validateEstimatedTokensUsed(model: AIModelEnum, userTokens: number): void {
+		const modelAvgTokensPerRequest =
+			this.subscriptionTokensService.getModelAvgTokensPerRequest(model);
+		const estimateTokensUsage =
+			this.subscriptionTokensService.calculateTokensUsage(
+				modelAvgTokensPerRequest,
+				model,
+			);
+		if (estimateTokensUsage > userTokens)
+			throw InvalidResponseActionError.byInsufficientTokens();
+	}
+
+	async #handleTokensSubtraction(
+		user: UserEntity,
+		tokensToSubtract: number,
+	): Promise<void> {
+		const { tokens } = user.getProps();
+
+		if (tokensToSubtract > tokens.amount)
+			throw InvalidResponseActionError.byInsufficientTokens();
+
+		tokens.subtract(tokensToSubtract);
+		user.update({ tokens });
+
+		await this.usersRepository.upsert(user);
+	}
+}

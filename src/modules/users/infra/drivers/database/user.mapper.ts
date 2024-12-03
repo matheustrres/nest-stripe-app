@@ -35,7 +35,8 @@ export class PrismaUserMapper implements Mapper<UserEntity, User> {
 	}
 
 	toPersist(entity: UserEntity): User {
-		const { tokens, ...rest } = entity.getProps();
+		const { tokens, subscription, ...rest } = entity.getProps();
+
 		return {
 			id: entity.id.value,
 			...rest,

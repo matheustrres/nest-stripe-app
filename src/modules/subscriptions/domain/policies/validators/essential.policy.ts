@@ -10,7 +10,7 @@ export class EssentialSubscriptionPolicyValidator extends SubscriptionPolicy {
 	protected validAIModels: AIModelEnum[] = [AIModelEnum.Gemini1_0Pro];
 	protected validChats: ChatTypeEnum[] = [
 		ChatTypeEnum.ConsumerLaw,
-		ChatTypeEnum.ConsumerLaw,
+		ChatTypeEnum.QuickSearch,
 	];
 
 	validate(): Either<Error, void> {

@@ -4,10 +4,12 @@ import { Module } from '@nestjs/common';
 import { VendorPaymentsClient } from './application/clients/payments/payments.client';
 import { SubscriptionsRepository } from './application/repositories/subscriptions.repository';
 import { SubscriptionPolicyFactoryService } from './application/services/subscription-policy-factory.service';
+import { SubscriptionsService } from './application/services/subscriptions.service';
 import { SubscriptionTokensService } from './application/services/tokens.service';
 import { CancelSubscriptionUseCase } from './application/use-cases/cancel-subscription.use-case';
 import { CreateSubscriptionUseCase } from './application/use-cases/create-subscription.use-case';
 import { StripeVendorPaymentsClientAdapter } from './infra/adapters/clients/payments/stripe.client';
+import { SubscriptionsServiceAdapter } from './infra/adapters/services/subscriptions.service';
 import { PrismaSubscriptionsRepository } from './infra/drivers/database/subscriptions.repository';
 import { SubscriptionsController } from './infra/drivers/http/rest/subscriptions.controller';
 import { RefundSubscriptionDomainEventListener } from './infra/events/listeners/refund-subscription.listener';
@@ -51,6 +53,10 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 			provide: VendorPaymentsClient,
 			useClass: StripeVendorPaymentsClientAdapter,
 		},
+		{
+			provide: SubscriptionsService,
+			useClass: SubscriptionsServiceAdapter,
+		},
 		CancelSubscriptionUseCase,
 		CreateSubscriptionUseCase,
 		RefundSubscriptionDomainEventListener,
@@ -61,7 +67,7 @@ import { PrismaModule } from '@/shared/modules/prisma/prisma.module';
 	exports: [
 		SubscriptionsRepository,
 		SubscriptionTokensService,
-		SubscriptionPolicyFactoryService,
+		SubscriptionsService,
 	],
 })
 export class SubscriptionsModule {}

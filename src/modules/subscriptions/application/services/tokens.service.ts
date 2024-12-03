@@ -1,25 +1,46 @@
 import { Injectable } from '@nestjs/common';
 
-import { AIModelSpecs } from '@/@core/domain/constants/ai-model-specs';
-
 import { AIModelEnum } from '@/modules/chats/domain/enums/ai-model';
 
 @Injectable()
 export class SubscriptionTokensService {
-	readonly #averageTokenChars = 4;
+	readonly #averageTokensForChars = 4; // 1 token ≈ 4 chars
+	readonly #averageWordsPerToken = 0.75; // 100 tokens ≈ 75 words (average)
 
-	#getAvgTokensForModel(model: AIModelEnum): number {
-		const average = AIModelSpecs[model];
-		return average.tokensPerRequest;
+	readonly #modelAverageTokensRequiredPerRequest: Record<AIModelEnum, number> =
+		{
+			[AIModelEnum.Gemini1_5Pro]: 710,
+			[AIModelEnum.Gemini1_5Flash]: 350,
+			[AIModelEnum.Gemini1_0Pro]: 200,
+		};
+	readonly #tokensValueForModel: Record<AIModelEnum, number> = {
+		[AIModelEnum.Gemini1_5Pro]: 1,
+		[AIModelEnum.Gemini1_5Flash]: 2,
+		[AIModelEnum.Gemini1_0Pro]: 3,
+	};
+
+	calculateTokensUsage(tokens: number, model: AIModelEnum): number {
+		const tokensCostFactor = this.#tokensValueForModel[model];
+		const amplificationFactor = 1.095;
+
+		const totalCharsEstimate = tokens * this.#averageTokensForChars;
+		const totalWordsEstimate = tokens * this.#averageWordsPerToken;
+
+		const adjustedTokensEstimate =
+			(totalCharsEstimate / this.#averageTokensForChars +
+				totalWordsEstimate / this.#averageWordsPerToken) /
+			1.135;
+
+		const estimationWithAmplification = Math.hypot(
+			adjustedTokensEstimate,
+			tokensCostFactor,
+			amplificationFactor,
+		);
+
+		return Math.ceil(estimationWithAmplification * amplificationFactor);
 	}
 
-	estimateTokensUsage(input: string, model: AIModelEnum): number {
-		const inputLength = input.length;
-		const avgTokensPerRequest = this.#getAvgTokensForModel(model);
-		const inputTokenCount = Math.ceil(inputLength / this.#averageTokenChars);
-
-		const estimative = inputTokenCount + avgTokensPerRequest;
-
-		return estimative;
+	getModelAvgTokensPerRequest(model: AIModelEnum): number {
+		return this.#modelAverageTokensRequiredPerRequest[model];
 	}
 }
